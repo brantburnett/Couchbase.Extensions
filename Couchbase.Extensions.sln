@@ -20,6 +20,10 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Extensions.Depend
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TestApp", "tests\TestApp\TestApp.xproj", "{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Extensions.DnsDiscovery", "src\Couchbase.Extensions.DnsDiscovery\Couchbase.Extensions.DnsDiscovery.xproj", "{71A8FC7A-A848-4414-BFAE-86E8A08E59A0}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Extensions.DnsDiscovery.UnitTests", "tests\Couchbase.Extensions.DnsDiscovery.UnitTests\Couchbase.Extensions.DnsDiscovery.UnitTests.xproj", "{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +46,14 @@ Global
 		{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -51,5 +63,7 @@ Global
 		{DD43EE36-EE8A-42E6-B837-AD5F32FE7F6F} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
 		{BACE8433-B111-44E7-A8BE-ECA7A48CAC6A} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
 		{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
+		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0} = {EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}
+		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
 	EndGlobalSection
 EndGlobal

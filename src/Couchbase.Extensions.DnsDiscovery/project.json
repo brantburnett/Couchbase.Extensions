@@ -1,0 +1,31 @@
+﻿{
+  "version": "1.0.0-beta2",
+  "authors": [ "Brant Burnett" ],
+
+  "packOptions": {
+    "summary": "A .Net Core compatible DNS SRV mechanism for discovering a Couchbase cluster dynamically.",
+    "tags": [ "Couchbase", "netcore", "dns", "microservices" ],
+    "projectUrl": "https://github.com/brantburnett/Couchbase.Extensions",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "iconUrl": "https://raw.githubusercontent.com/couchbaselabs/Linq2Couchbase/master/Packaging/couchbase-logo.png",
+    "owners": [ "btburnett3" ],
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/brantburnett/Couchbase.Extensions"
+    }
+  },
+
+  "dependencies": {
+    "CouchbaseNetClient": "2.4.0-dp3",
+    "DnsClient": "1.0.1",
+    "NETStandard.Library": "1.6.1",
+    "Microsoft.Extensions.Logging": "1.0.1",
+    "Microsoft.Extensions.Options": "1.0.1"
+  },
+
+  "frameworks": {
+    "netstandard1.5": {
+      "imports": "dnxcore50"
+    }
+  }
+}
