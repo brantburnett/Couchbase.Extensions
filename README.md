@@ -1,5 +1,7 @@
 # Couchbase Extensions #
 
+[![Build status](https://ci.appveyor.com/api/projects/status/b6oqv14r9jmi8lle/branch/master?svg=true)](https://ci.appveyor.com/project/brantburnett/couchbase-extensions/branch/master)
+
 A collection of extensions for the Couchbase .Net SDK designed to simplify working with Couchbase within .Net Core applications.
 
 ## Couchbase.Extensions.DependencyInjection ##

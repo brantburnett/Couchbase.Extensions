@@ -1,0 +1,33 @@
+version: '{build}'
+configuration: Release
+environment:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+nuget:
+  disable_publish_on_pr: true
+before_build:
+- cmd: appveyor-retry dotnet restore -v Minimal
+build:
+  publish_nuget: true
+  publish_nuget_symbols: true
+  verbosity: minimal
+after_build:
+- cmd: dotnet pack --configuration %CONFIGURATION% "src/Couchbase.Extensions.DependencyInjection"
+test_script:
+- cmd: dotnet test "tests\Couchbase.Extensions.DependencyInjection.UnitTests"
+artifacts:
+- path: src/Couchbase.Extensions.DependencyInjection/bin/%CONFIGURATION%/*.nupkg
+  name: NuGet
+deploy:
+- provider: NuGet
+  api_key:
+    secure: KzT1ESVyB5LB0Ovg+dPUmvZYQJ0XYoBEe9DW1pBDKzv0y/7y2RlJ1xt16ZI5dnVE
+  artifact: NuGet
+  on:
+    APPVEYOR_REPO_TAG: true
+notifications:
+- provider: GitHubPullRequest
+  auth_token:
+    secure: ULHzhdaGoUWJwQqameGnvmg+61OInc0YMit2rTezp2pi3ZB4ehCq4T0h3WbnVEcu
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
