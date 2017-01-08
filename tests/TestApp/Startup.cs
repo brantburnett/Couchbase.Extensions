@@ -1,4 +1,5 @@
 ﻿using Couchbase.Extensions.DependencyInjection;
+using Couchbase.Extensions.DnsDiscovery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,9 +20,11 @@ namespace TestApp
                 .AddEnvironmentVariables();
 
             Configuration = builder.Build();
+            Environment = env;
         }
 
         public IConfigurationRoot Configuration { get; }
+        public IHostingEnvironment Environment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -31,17 +34,22 @@ namespace TestApp
                 .AddCouchbase(Configuration.GetSection("Couchbase"))
                 .AddCouchbaseBucket<ITravelSampleBucketProvider>("travel-sample");
 
+            if (Environment.IsProduction())
+            {
+                services.AddCouchbaseDnsDiscovery("_couchbase._tcp.services.local");
+            }
+
             services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
             IApplicationLifetime applicationLifetime)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            if (env.IsDevelopment())
+            if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();
