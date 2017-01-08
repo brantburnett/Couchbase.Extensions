@@ -1,0 +1,30 @@
+﻿{
+  "version": "1.0.0-beta1",
+
+  "packOptions": {
+    "summary": "A .Net Core style dependency injection framework for a Couchbase cluster and buckets.  It simplifies cluster configuration, lifetime management, and bucket injection.",
+    "tags": ["Couchbase", "netcore"],
+    "iconUrl": "https://raw.githubusercontent.com/couchbaselabs/Linq2Couchbase/master/Packaging/couchbase-logo.png",
+    "owners": [ "btburnett3" ],
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/brantburnett/Couchbase.Extensions"
+    }
+  },
+
+  "dependencies": {
+    "Castle.Core": "4.0.0-beta002",
+    "CouchbaseNetClient": "2.4.0-dp3",
+    "Microsoft.Extensions.Configuration": "1.0.1",
+    "Microsoft.Extensions.Configuration.Binder": "1.0.1",
+    "Microsoft.Extensions.DependencyInjection": "1.0.1",
+    "Microsoft.Extensions.Options": "1.0.1",
+    "NETStandard.Library": "1.6.1"
+  },
+
+  "frameworks": {
+    "netstandard1.5": {
+      "imports": "dnxcore50"
+    }
+  }
+}

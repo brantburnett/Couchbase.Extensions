@@ -1,0 +1,28 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "Couchbase.Extensions.DependencyInjection": "1.0.0-*",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "Microsoft.Extensions.Configuration.Json": "1.0.1",
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.1"
+    },
+    "xunit": "2.2.0-beta4-build3444"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "dnxcore50"
+    }
+  },
+
+  "buildOptions": {
+    "copyToOutput": [
+      "configuration.json"
+    ]
+  },
+
+  "testRunner": "xunit"
+}
