@@ -53,12 +53,29 @@ namespace Couchbase.Extensions.DependencyInjection
             return services;
         }
 
+        /// <summary>
+        /// Register an interface based on <see cref="INamedBucketProvider"/> which will be injected
+        /// with a specific bucket name.
+        /// </summary>
+        /// <typeparam name="T">Interface inherited from <see cref="INamedBucketProvider"/>.  Must not add any members.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/>.</param>
+        /// <param name="bucketName">The name of the Couchbase bucket.</param>
+        /// <returns>The <see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddCouchbaseBucket<T>(this IServiceCollection services, string bucketName)
             where T: class, INamedBucketProvider
         {
             return services.AddCouchbaseBucket<T>(bucketName, null);
         }
 
+        /// <summary>
+        /// Register an interface based on <see cref="INamedBucketProvider"/> which will be injected
+        /// with a specific bucket name.
+        /// </summary>
+        /// <typeparam name="T">Interface inherited from <see cref="INamedBucketProvider"/>.  Must not add any members.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/>.</param>
+        /// <param name="bucketName">The name of the Couchbase bucket.</param>
+        /// <param name="password">The bucket password.</param>
+        /// <returns>The <see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddCouchbaseBucket<T>(this IServiceCollection services, string bucketName,
             string password)
             where T : class, INamedBucketProvider
@@ -69,6 +86,48 @@ namespace Couchbase.Extensions.DependencyInjection
             }
 
             services.AddSingleton(serviceProvider =>
+            {
+                var generator = serviceProvider.GetRequiredService<NamedBucketProxyGenerator>();
+
+                return generator.GetProxy<T>(serviceProvider.GetRequiredService<IBucketProvider>(), bucketName, password);
+            });
+
+            return services;
+        }
+
+        /// <summary>
+        /// Register an interface based on <see cref="INamedBucketProvider"/> which will be injected
+        /// with a specific bucket name if the interface hasn't already been added.
+        /// </summary>
+        /// <typeparam name="T">Interface inherited from <see cref="INamedBucketProvider"/>.  Must not add any members.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/>.</param>
+        /// <param name="bucketName">The name of the Couchbase bucket.</param>
+        /// <returns>The <see cref="IServiceCollection"/>.</returns>
+        public static IServiceCollection TryAddCouchbaseBucket<T>(this IServiceCollection services, string bucketName)
+            where T : class, INamedBucketProvider
+        {
+            return services.AddCouchbaseBucket<T>(bucketName, null);
+        }
+
+        /// <summary>
+        /// Register an interface based on <see cref="INamedBucketProvider"/> which will be injected
+        /// with a specific bucket name if the interface hasn't already been added.
+        /// </summary>
+        /// <typeparam name="T">Interface inherited from <see cref="INamedBucketProvider"/>.  Must not add any members.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/>.</param>
+        /// <param name="bucketName">The name of the Couchbase bucket.</param>
+        /// <param name="password">The bucket password.</param>
+        /// <returns>The <see cref="IServiceCollection"/>.</returns>
+        public static IServiceCollection TryAddCouchbaseBucket<T>(this IServiceCollection services, string bucketName,
+            string password)
+            where T : class, INamedBucketProvider
+        {
+            if (bucketName == null)
+            {
+                throw new ArgumentNullException(nameof(bucketName));
+            }
+
+            services.TryAddSingleton(serviceProvider =>
             {
                 var generator = serviceProvider.GetRequiredService<NamedBucketProxyGenerator>();
 
