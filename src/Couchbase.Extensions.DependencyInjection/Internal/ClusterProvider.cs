@@ -1,6 +1,7 @@
 ﻿using System;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Couchbase.Extensions.DependencyInjection.Internal
@@ -8,17 +9,23 @@ namespace Couchbase.Extensions.DependencyInjection.Internal
     internal class ClusterProvider : IClusterProvider
     {
         private readonly IOptions<CouchbaseClientDefinition> _options;
+        private readonly ILoggerFactory _loggerFactory;
         private ICluster _cluster;
         private bool _disposed = false;
 
-        public ClusterProvider(IOptions<CouchbaseClientDefinition> options)
+        public ClusterProvider(IOptions<CouchbaseClientDefinition> options, ILoggerFactory loggerFactory)
         {
             if (options == null)
             {
                 throw new ArgumentNullException(nameof(options));
             }
+            if (loggerFactory == null)
+            {
+                throw new ArgumentNullException(nameof(loggerFactory));
+            }
 
             _options = options;
+            _loggerFactory = loggerFactory;
         }
 
         public virtual ICluster GetCluster()
@@ -43,7 +50,12 @@ namespace Couchbase.Extensions.DependencyInjection.Internal
         /// </summary>
         protected virtual ICluster CreateCluster(CouchbaseClientDefinition clientDefinition)
         {
-            return new Cluster(clientDefinition);
+            var configuration = new ClientConfiguration(clientDefinition)
+            {
+                LoggerFactory = _loggerFactory
+            };
+
+            return new Cluster(configuration);
         }
 
         public void Dispose()
