@@ -16,7 +16,7 @@
   },
 
   "dependencies": {
-    "CouchbaseNetClient": "2.4.0-dp3",
+    "CouchbaseNetClient": "2.4.0",
     "Microsoft.Extensions.Configuration": "1.0.1",
     "Microsoft.Extensions.Configuration.Binder": "1.0.1",
     "Microsoft.Extensions.DependencyInjection": "1.0.1",
