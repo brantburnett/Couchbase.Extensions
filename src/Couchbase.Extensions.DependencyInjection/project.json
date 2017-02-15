@@ -1,11 +1,11 @@
 ﻿{
-  "version": "1.0.0-beta4",
+  "version": "1.0.0-*",
   "authors": [ "Brant Burnett" ],
-  "projectUrl": "https://github.com/brantburnett/Couchbase.Extensions",
 
   "packOptions": {
     "summary": "A .Net Core style dependency injection framework for a Couchbase cluster and buckets.  It simplifies cluster configuration, lifetime management, and bucket injection.",
     "tags": [ "Couchbase", "netcore" ],
+    "projectUrl": "https://github.com/brantburnett/Couchbase.Extensions",
     "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
     "iconUrl": "https://raw.githubusercontent.com/couchbaselabs/Linq2Couchbase/master/Packaging/couchbase-logo.png",
     "owners": [ "btburnett3" ],
