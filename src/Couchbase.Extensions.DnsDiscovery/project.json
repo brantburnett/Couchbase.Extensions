@@ -1,5 +1,5 @@
 ﻿{
-  "version": "1.0.0-beta4",
+  "version": "1.0.0-*",
   "authors": [ "Brant Burnett" ],
 
   "packOptions": {
@@ -19,7 +19,7 @@
     "CouchbaseNetClient": "2.4.0",
     "DnsClient": "1.0.1",
     "NETStandard.Library": "1.6.1",
-    "Microsoft.Extensions.Logging": "1.0.1",
+    "Microsoft.Extensions.Logging": "1.1.0",
     "Microsoft.Extensions.Options": "1.0.1"
   },
 
