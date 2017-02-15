@@ -16,7 +16,7 @@
   },
 
   "dependencies": {
-    "CouchbaseNetClient": "2.4.0-dp3",
+    "CouchbaseNetClient": "2.4.0",
     "DnsClient": "1.0.1",
     "NETStandard.Library": "1.6.1",
     "Microsoft.Extensions.Logging": "1.0.1",
