@@ -1,0 +1,33 @@
+﻿{
+  "testSettings": {
+    "current": "basic",
+    "hostname": "localhost",
+    "bootPort": "8091",
+    "adminUsername": "Administrator",
+    "adminPassword": "password"
+  },
+
+  "couchbase": {
+    "basic": {
+      "enableConfigHeartbeat": true,
+      "buckets": [
+        {
+          "name": "default",
+          "useEnhancedDurability": false
+        }
+      ]
+    },
+
+    "ssl": {
+      "enableConfigHeartbeat": true,
+      "useSsl": true,
+      "ignoreRemoteCertificateNameMismatch": true,
+      "buckets": [
+        {
+          "name": "default",
+          "useEnhancedDurability": true
+        }
+      ]
+    }
+  }
+}
