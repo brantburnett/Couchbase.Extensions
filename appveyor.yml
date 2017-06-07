@@ -16,14 +16,21 @@ build:
 after_build:
 - cmd: dotnet pack --configuration %CONFIGURATION% "src/Couchbase.Extensions.DependencyInjection"
 - cmd: dotnet pack --configuration %CONFIGURATION% "src/Couchbase.Extensions.DnsDiscovery"
+- cmd: dotnet pack --configuration %CONFIGURATION% "src/Couchbase.Extensions.Session"
+- cmd: dotnet pack --configuration %CONFIGURATION% "src/Couchbase.Extensions.Caching"
 test_script:
 - cmd: dotnet test "tests\Couchbase.Extensions.DependencyInjection.UnitTests"
 - cmd: dotnet test "tests\Couchbase.Extensions.DnsDiscovery.UnitTests"
+- cmd: dotnet test "tests\Couchbase.Extensions.Caching.UnitTests"
 artifacts:
 - path: src/Couchbase.Extensions.DependencyInjection/bin/%CONFIGURATION%/*.nupkg
   name: DependencyInjection
 - path: src/Couchbase.Extensions.DnsDiscovery/bin/%CONFIGURATION%/*.nupkg
   name: DnsDiscovery
+- path: src/Couchbase.Extensions.Session/bin/%CONFIGURATION%/*.nupkg
+  name: Session
+- path: src/Couchbase.Extensions.Caching/bin/%CONFIGURATION%/*.nupkg
+  name: Caching
 deploy:
 - provider: NuGet
   api_key:
