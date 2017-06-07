@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "copyToOutput": {
+      "include": [ "config.json" ]
+    }
+  },
+
+  "testRunner": "nunit",
+
+  "dependencies": {
+    "Couchbase.Extensions.Caching": "1.0.0-*",
+    "dotnet-test-nunit": "3.4.0-beta-3",
+    "Microsoft.Extensions.Caching.Abstractions": "1.1.2",
+    "Microsoft.Extensions.Configuration": "1.1.2",
+    "Microsoft.Extensions.Configuration.Binder": "1.1.0",
+    "Microsoft.Extensions.Configuration.Json": "1.1.0",
+    "Microsoft.NETCore.App": "1.1.2",
+    "NUnit": "3.6.1"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "dnxcore50"
+    }
+  },
+  "runtimes": {
+    "win10-x64": {},
+    "win8-x64": {}
+  }
+}
