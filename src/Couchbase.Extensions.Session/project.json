@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "Couchbase.Extensions.Caching": "1.0.0-*",
+    "Microsoft.AspNetCore.Http.Abstractions": "1.1.2",
+    "Microsoft.AspNetCore.Http.Features": "1.1.2",
+    "Microsoft.AspNetCore.Session": "1.1.2",
+    "Microsoft.Extensions.Caching.Abstractions": "1.1.2",
+    "Microsoft.Extensions.Logging.Abstractions": "1.1.2",
+    "NETStandard.Library": "1.6.1"
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50"
+    }
+  }
+}

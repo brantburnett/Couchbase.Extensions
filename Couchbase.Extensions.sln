@@ -24,6 +24,14 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Extensions.DnsDis
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Extensions.DnsDiscovery.UnitTests", "tests\Couchbase.Extensions.DnsDiscovery.UnitTests\Couchbase.Extensions.DnsDiscovery.UnitTests.xproj", "{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Extensions.Caching", "src\Couchbase.Extensions.Caching\Couchbase.Extensions.Caching.xproj", "{700D3F0E-DD70-43CD-9B35-ED12042051D0}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Extensions.Session", "src\Couchbase.Extensions.Session\Couchbase.Extensions.Session.xproj", "{66C1DB94-69F2-4202-BB49-A112915FD932}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Extensions.Caching.IntegrationTests", "tests\Couchbase.Extensions.Caching.IntegrationTests\Couchbase.Extensions.Caching.IntegrationTests.xproj", "{1F91B9B9-DF56-4F73-B593-B080272B620D}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Extensions.Caching.UnitTests", "tests\Couchbase.Extensions.Caching.UnitTests\Couchbase.Extensions.Caching.UnitTests.xproj", "{DC727A08-3988-4B71-8362-1F7870B87157}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +62,22 @@ Global
 		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{700D3F0E-DD70-43CD-9B35-ED12042051D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{700D3F0E-DD70-43CD-9B35-ED12042051D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{700D3F0E-DD70-43CD-9B35-ED12042051D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{700D3F0E-DD70-43CD-9B35-ED12042051D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66C1DB94-69F2-4202-BB49-A112915FD932}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66C1DB94-69F2-4202-BB49-A112915FD932}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66C1DB94-69F2-4202-BB49-A112915FD932}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66C1DB94-69F2-4202-BB49-A112915FD932}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F91B9B9-DF56-4F73-B593-B080272B620D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F91B9B9-DF56-4F73-B593-B080272B620D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F91B9B9-DF56-4F73-B593-B080272B620D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F91B9B9-DF56-4F73-B593-B080272B620D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC727A08-3988-4B71-8362-1F7870B87157}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC727A08-3988-4B71-8362-1F7870B87157}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC727A08-3988-4B71-8362-1F7870B87157}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC727A08-3988-4B71-8362-1F7870B87157}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,5 +89,9 @@ Global
 		{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
 		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0} = {EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}
 		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
+		{700D3F0E-DD70-43CD-9B35-ED12042051D0} = {EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}
+		{66C1DB94-69F2-4202-BB49-A112915FD932} = {EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}
+		{1F91B9B9-DF56-4F73-B593-B080272B620D} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
+		{DC727A08-3988-4B71-8362-1F7870B87157} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
 	EndGlobalSection
 EndGlobal
