@@ -18,7 +18,9 @@ namespace Couchbase.Extensions.DependencyInjection.IntegrationTests
             var configuration = TestConfiguration.GetConfiguration();
 
             var services = new ServiceCollection();
-            services.AddCouchbase(configuration);
+            services
+                .AddLogging()
+                .AddCouchbase(configuration);
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -51,6 +53,7 @@ namespace Couchbase.Extensions.DependencyInjection.IntegrationTests
 
             var services = new ServiceCollection();
             services
+                .AddLogging()
                 .AddCouchbase(configuration)
                 .AddCouchbaseBucket<ITestBucketProvider>("travel-sample");
 
