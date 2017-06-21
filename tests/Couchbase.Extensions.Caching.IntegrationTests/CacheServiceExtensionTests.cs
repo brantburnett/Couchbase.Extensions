@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Couchbase.Extensions.Caching.IntegrationTests.Infrastructure;
 using Couchbase.Extensions.DependencyInjection;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Couchbase.Extensions.Caching.IntegrationTests
 {
-    [TestFixture]
     public class CacheServiceExtensionTests
     {
-        [Ignore("Temporarily skip.")]
-        [Test]
+        [Fact(Skip = "Temporarily skip.")]
         public void AddDistributedCouchbaseCache_ReplacesPreviouslyUserRegisteredServices()
         {
             // Arrange
@@ -34,8 +29,8 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
             var distributedCache = services.FirstOrDefault(desc => desc.ServiceType == typeof(IDistributedCache));
 
             Assert.NotNull(distributedCache);
-            Assert.AreEqual(ServiceLifetime.Scoped, distributedCache.Lifetime);
-            Assert.IsInstanceOf<CouchbaseCache>(serviceProvider.GetRequiredService<IDistributedCache>());
+            Assert.Equal(ServiceLifetime.Scoped, distributedCache.Lifetime);
+            Assert.IsAssignableFrom<CouchbaseCache>(serviceProvider.GetRequiredService<IDistributedCache>());
         }
     }
 }

@@ -2,18 +2,14 @@
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using NUnit.Framework;
 using System.Linq;
-using Couchbase.Configuration.Client;
-using Couchbase.Core;
-using Couchbase.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Couchbase.Extensions.Caching.UnitTests
 {
-    [TestFixture]
     public class CacheServiceExtensionTests
     {
-        [Test]
+        [Fact]
         public void AddDistributedCouchbaseCache_RegistersDistributedCacheAsSingleton()
         {
             // Arrange
@@ -26,15 +22,15 @@ namespace Couchbase.Extensions.Caching.UnitTests
             var distributedCache = services.FirstOrDefault(desc => desc.ServiceType == typeof(IDistributedCache));
 
             Assert.NotNull(distributedCache);
-            Assert.AreEqual(ServiceLifetime.Singleton, distributedCache.Lifetime);
+            Assert.Equal(ServiceLifetime.Singleton, distributedCache.Lifetime);
         }
 
-        [Test]
+        [Fact]
         public void AddDistributedCouchbaseCache_Allows_Chaining()
         {
             var services = new ServiceCollection();
 
-            Assert.AreSame(services, services.AddDistributedCouchbaseCache("bucketName", _ => { }));
+            Assert.Same(services, services.AddDistributedCouchbaseCache("bucketName", _ => { }));
         }
     }
 }
