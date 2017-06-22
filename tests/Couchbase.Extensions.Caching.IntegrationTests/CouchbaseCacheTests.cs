@@ -3,31 +3,35 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Extensions.Caching.IntegrationTests.Infrastructure;
+using Couchbase.Extensions.DependencyInjection;
 using Couchbase.IO;
+using Microsoft.Extensions.Caching.Distributed;
 using Moq;
 using Newtonsoft.Json;
-using NUnit.Framework;
-
+using Xunit;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Couchbase.Extensions.Caching.IntegrationTests
 {
-    [TestFixture]
     public class CouchbaseCacheTests
     {
-        [OneTimeSetUp]
-        public void SetUp()
+        public CouchbaseCacheTests()
         {
-            ClusterHelper.Initialize(TestConfiguration.GetCurrentConfiguration());
+            if (!ClusterHelper.Initialized)
+            {
+                ClusterHelper.Initialize(TestConfiguration.GetCurrentConfiguration());
+            }
         }
 
-        [Test]
+        [Fact]
         public void Test_Set()
         {
             var cache = GetCache();
 
+            var bucket = ClusterHelper.GetBucket("default");
             var poco = new Poco {Name = "poco1", Age = 12};
             const string key = "CouchbaseCacheTests.Test_Set";
-            var bucket = ClusterHelper.GetBucket("default");
+
             bucket.Remove(key);
 
             cache.Set(key, GetBytes(poco), null);
@@ -35,10 +39,10 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
             var result = bucket.Get<byte[]>(key);
             var actual = GetObject<Poco>(result.Value);
 
-            Assert.AreEqual(actual.ToString(), poco.ToString());
+            Assert.Equal(actual.ToString(), poco.ToString());
         }
 
-        [Test]
+        [Fact]
         public async Task Test_SetAsync()
         {
             var cache = GetCache();
@@ -53,10 +57,10 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
             var result = await bucket.GetAsync<byte[]>(key);
             var actual = GetObject<Poco>(result.Value);
 
-            Assert.AreEqual(actual.ToString(), poco.ToString());
+            Assert.Equal(actual.ToString(), poco.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Test_Get()
         {
             var cache = GetCache();
@@ -67,15 +71,15 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
             bucket.Remove(key);
 
             var result = bucket.Insert(key, GetBytes(poco));
-            Assert.IsTrue(result.Success);
+            Assert.True(result.Success);
 
             var bytes = cache.Get(key);
             var actual = GetObject<Poco>(bytes);
 
-            Assert.AreEqual(actual.ToString(), poco.ToString());
+            Assert.Equal(actual.ToString(), poco.ToString());
         }
 
-        [Test]
+        [Fact]
         public async Task Test_GetAsync()
         {
             var cache = GetCache();
@@ -86,15 +90,15 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
             bucket.Remove(key);
 
             var result = bucket.Insert(key, GetBytes(poco));
-            Assert.IsTrue(result.Success);
+            Assert.True(result.Success);
 
             var bytes = await cache.GetAsync(key);
             var actual = GetObject<Poco>(bytes);
 
-            Assert.AreEqual(actual.ToString(), poco.ToString());
+            Assert.Equal(actual.ToString(), poco.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Test_Remove()
         {
             var cache = GetCache();
@@ -105,16 +109,16 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
             bucket.Remove(key);
 
             var result = bucket.Insert(key, GetBytes(poco));
-            Assert.IsTrue(result.Success);
+            Assert.True(result.Success);
 
             cache.Remove(key);
 
             var actual = bucket.Get<byte[]>(key);
 
-            Assert.AreEqual(actual.Status, ResponseStatus.KeyNotFound);
+            Assert.Equal(actual.Status, ResponseStatus.KeyNotFound);
         }
 
-        [Test]
+        [Fact]
         public async Task Test_RemoveAsync()
         {
             var cache = GetCache();
@@ -125,16 +129,16 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
             bucket.Remove(key);
 
             var result = await bucket.InsertAsync(key, GetBytes(poco));
-            Assert.IsTrue(result.Success);
+            Assert.True(result.Success);
 
             await cache.RemoveAsync(key);
 
             var actual = await bucket.GetAsync<byte[]>(key);
 
-            Assert.AreEqual(actual.Status, ResponseStatus.KeyNotFound);
+            Assert.Equal(actual.Status, ResponseStatus.KeyNotFound);
         }
 
-        [Test]
+        [Fact]
         public void Test_Refresh()
         {
             var cache = GetCache();
@@ -150,10 +154,10 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
 
             Thread.Sleep(2000);
             var result = bucket.Get<byte[]>(key);
-            Assert.AreEqual(ResponseStatus.Success, result.Status);
+            Assert.Equal(ResponseStatus.Success, result.Status);
         }
 
-        [Test]
+        [Fact]
         public async Task Test_RefreshAsync()
         {
             var cache = GetCache();
@@ -169,10 +173,10 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
 
             Thread.Sleep(2000);
             var result = await bucket.GetAsync<byte[]>(key);
-            Assert.AreEqual(ResponseStatus.Success, result.Status);
+            Assert.Equal(ResponseStatus.Success, result.Status);
         }
 
-        [Test]
+        [Fact]
         public void Test_Refresh_WithTimeSpan()
         {
             var cache = GetCache(new TimeSpan(0,0,0,4));
@@ -188,10 +192,10 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
 
             Thread.Sleep(2000);
             var result = bucket.Get<byte[]>(key);
-            Assert.AreEqual(ResponseStatus.Success, result.Status);
+            Assert.Equal(ResponseStatus.Success, result.Status);
         }
 
-        [Test]
+        [Fact]
         public async Task Test_RefreshAsync_WithTimeSpan()
         {
             var cache = GetCache(new TimeSpan(0, 0, 0, 4));
@@ -207,7 +211,7 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
 
             Thread.Sleep(2000);
             var result = await bucket.GetAsync<byte[]>(key);
-            Assert.AreEqual(ResponseStatus.Success, result.Status);
+            Assert.Equal(ResponseStatus.Success, result.Status);
         }
 
         static byte[] GetBytes(Poco poco)
@@ -228,6 +232,7 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
             };
 
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            provider.Setup(x => x.GetBucket()).Returns(ClusterHelper.GetBucket("default"));
 
             return new CouchbaseCache(provider.Object, options);
         }

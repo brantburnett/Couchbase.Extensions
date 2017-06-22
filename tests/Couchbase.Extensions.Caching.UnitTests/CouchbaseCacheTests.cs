@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Couchbase.Core;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Couchbase.Extensions.Caching.UnitTests
 {
-    [TestFixture]
     public class CouchbaseCacheTests
     {
-        [Test]
+        [Fact]
         public void Set_WhenKeyIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
@@ -18,17 +18,17 @@ namespace Couchbase.Extensions.Caching.UnitTests
             Assert.Throws<ArgumentNullException>(() => cache.Set(null, new byte[0], null));
         }
 
-        [Test]
-        public void SetAsync_WhenKeyIsNull_ThrowArgumentNullException()
+        [Fact]
+        public async Task SetAsync_WhenKeyIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await cache.SetAsync(null, new byte[0], null));
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await cache.SetAsync(null, new byte[0], null));
         }
 
-        [Test]
+        [Fact]
         public void Get_WhenKeyIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
@@ -38,17 +38,17 @@ namespace Couchbase.Extensions.Caching.UnitTests
             Assert.Throws<ArgumentNullException>(() => cache.Get(null));
         }
 
-        [Test]
-        public void GetAsync_WhenKeyIsNull_ThrowArgumentNullException()
+        [Fact]
+        public async Task GetAsync_WhenKeyIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await cache.GetAsync(null));
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await cache.GetAsync(null));
         }
 
-        [Test]
+        [Fact]
         public void Refresh_WhenKeyIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
@@ -58,17 +58,17 @@ namespace Couchbase.Extensions.Caching.UnitTests
             Assert.Throws<ArgumentNullException>(() => cache.Refresh(null));
         }
 
-        [Test]
-        public void RefreshAsync_WhenKeyIsNull_ThrowArgumentNullException()
+        [Fact]
+        public async Task RefreshAsync_WhenKeyIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await cache.RefreshAsync(null));
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await cache.RefreshAsync(null));
         }
 
-        [Test]
+        [Fact]
         public void Remove_WhenKeyIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
@@ -78,17 +78,18 @@ namespace Couchbase.Extensions.Caching.UnitTests
             Assert.Throws<ArgumentNullException>(() => cache.Remove(null));
         }
 
-        [Test]
-        public void RemoveAsync_WhenKeyIsNull_ThrowArgumentNullException()
+        [Fact]
+        public async Task RemoveAsync_WhenKeyIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
-            Assert.ThrowsAsync< ArgumentNullException>(async () => await cache.RemoveAsync(null));
+            await Assert.ThrowsAsync< ArgumentNullException>(async () => await cache.RemoveAsync(null));
         }
 
-        [Test] public void Set_WhenValueIsNull_ThrowArgumentNullException()
+        [Fact]
+        public void Set_WhenValueIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
 
@@ -97,14 +98,14 @@ namespace Couchbase.Extensions.Caching.UnitTests
             Assert.Throws<ArgumentNullException>(() => cache.Set(null, new byte[0], null));
         }
 
-        [Test]
-        public void SetAsync_WhenValueIsNull_ThrowArgumentNullException()
+        [Fact]
+        public async Task SetAsync_WhenValueIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await cache.SetAsync(null, new byte[0], null));
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await cache.SetAsync(null, new byte[0], null));
         }
     }
 }

@@ -7,12 +7,13 @@
     }
   },
 
-  "testRunner": "nunit",
+  "testRunner": "xunit",
 
   "dependencies": {
     "Couchbase.Extensions.Caching": "1.0.0-*",
+    "Couchbase.Extensions.DependencyInjection": "1.0.0-*",
     "Couchbase.Extensions.Session": "1.0.0-*",
-    "dotnet-test-nunit": "3.4.0-beta-3",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "Microsoft.AspNetCore.Session": "1.1.2",
     "Microsoft.AspNetCore.TestHost": "1.1.2",
     "Microsoft.Extensions.Caching.Memory": "1.1.2",
@@ -20,7 +21,7 @@
     "Microsoft.Extensions.DependencyInjection.Abstractions": "1.1.1",
     "Microsoft.NETCore.App": "1.1.2",
     "Moq": "4.6.38-alpha",
-    "NUnit": "3.6.1"
+    "xunit": "2.2.0-beta4-build3444"
   },
 
   "frameworks": {
