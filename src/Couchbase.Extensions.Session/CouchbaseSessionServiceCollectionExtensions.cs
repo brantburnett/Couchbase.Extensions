@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,10 @@ namespace Couchbase.Extensions.Session
                 throw new ArgumentNullException(nameof(services));
             }
 
+            var descriptor = services.FirstOrDefault(x => x.ServiceType == typeof(ISessionStore));
+            if (descriptor != null) services.Remove(descriptor);
             services.TryAddTransient<ISessionStore, CouchbaseSessionStore>();
+
             services.AddDataProtection();
 
             return services;

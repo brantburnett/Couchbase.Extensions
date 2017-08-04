@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Couchbase.Extensions.DependencyInjection;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +28,9 @@ namespace Couchbase.Extensions.Caching
 
             services.AddOptions();
             services.Configure(setupAction);
+
+            var descriptor = services.FirstOrDefault(x => x.ServiceType == typeof(IDistributedCache));
+            if (descriptor != null) services.Remove(descriptor);
             services.TryAddSingleton<IDistributedCache, CouchbaseCache>();
 
             return services;
@@ -53,6 +57,9 @@ namespace Couchbase.Extensions.Caching
             services.AddCouchbaseBucket<ICouchbaseCacheBucketProvider>(bucketName);
             services.AddOptions();
             services.Configure(setupAction);
+
+            var descriptor = services.FirstOrDefault(x => x.ServiceType == typeof(IDistributedCache));
+            if (descriptor != null) services.Remove(descriptor);
             services.TryAddSingleton<IDistributedCache, CouchbaseCache>();
 
             return services;
@@ -80,6 +87,9 @@ namespace Couchbase.Extensions.Caching
             services.AddCouchbaseBucket<ICouchbaseCacheBucketProvider>(bucketName, password);
             services.AddOptions();
             services.Configure(setupAction);
+
+            var descriptor = services.FirstOrDefault(x => x.ServiceType == typeof(IDistributedCache));
+            if (descriptor != null) services.Remove(descriptor);
             services.TryAddSingleton<IDistributedCache, CouchbaseCache>();
 
             return services;
