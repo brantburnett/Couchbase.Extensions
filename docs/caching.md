@@ -17,19 +17,15 @@ In Setup.cs add the following to the ConfigureServices method:
 	    // Add framework services.
 	    services.AddMvc();
 	
-	    services.AddDistributedCouchbaseCache(opt =>
-	    {
-	        opt.BucketName = "default";
-	        opt.Configuration = new ClientConfiguration
-	        {
-	            Servers = new List<Uri>
-	            {
-	                new Uri("http://localhost:8091")
-	            }
-	        };
-	        ClusterHelper.Initialize(opt.Configuration);
-	        opt.Bucket = ClusterHelper.GetBucket(opt.BucketName);
-	    });
+	     services.AddCouchbase(opt =>
+            {
+                opt.Servers = new List<Uri>
+                {
+                    new Uri("http://10.111.150.101:8091")
+                };
+            });
+
+            services.AddDistributedCouchbaseCache("default", opt => { });
 	}
 
   You can change the `localhost` hostname to wherever you are hosting your Couchbase cluster. 
