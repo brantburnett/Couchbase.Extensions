@@ -28,20 +28,18 @@ In the `ConfigureServices(..)` method add code to initialize the `ICluster` and 
 	    services.AddMvc();
 	
 	    // Add the couchbase caching service
-	    services.AddDistributedCouchbaseCache(opt =>
-	    {
-	        opt.BucketName = "default";
-	        opt.Configuration = new ClientConfiguration
-	        {
-	            Servers = new List<Uri>
-	            {
-	                new Uri("http://localhost:8091/")
-	            }
-	        };
-	        ClusterHelper.Initialize(opt.Configuration);
-	        opt.Bucket = ClusterHelper.GetBucket(opt.BucketName);
-	    });
-	
+	      services.AddCouchbase(opt =>
+            {
+                opt.Servers = new List<Uri>
+                {
+                    new Uri("http://10.111.150.101:8091")
+                };
+            });
+
+	    //Add the distributed cache for storage
+            services.AddDistributedCouchbaseCache("default", opt => { });
+
+	    //Add the session state
 	    services.AddCouchbaseSession(opt =>
 	    {
 	        opt.IdleTimeout = new TimeSpan(0, 0, 10, 0);
