@@ -1,6 +1,6 @@
 # Couchbase Extensions #
 
-[![Build status](https://ci.appveyor.com/api/projects/status/b6oqv14r9jmi8lle/branch/master?svg=true)](https://ci.appveyor.com/project/brantburnett/couchbase-extensions/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/5jlr7hh5ay540guk?svg=true](https://ci.appveyor.com/project/couchbaselabs/couchbase-extensions/branch/master)
 
 
 
