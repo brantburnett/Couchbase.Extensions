@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>Couchbase.Extensions.Session.UnitTests</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Couchbase.Extensions.Session.UnitTests</PackageId>
@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20170106-08" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-beta5-build1225" />
     <PackageReference Include="fm.Extensions.Logging.Testing.xUnit" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="1.1.2" />
