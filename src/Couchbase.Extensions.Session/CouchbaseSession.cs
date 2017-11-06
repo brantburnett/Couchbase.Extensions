@@ -3,8 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
+using Couchbase.Core.Transcoders;
 using Couchbase.Extensions.Caching;
+using Couchbase.IO.Operations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
@@ -14,11 +17,13 @@ namespace Couchbase.Extensions.Session
 {
     public class CouchbaseSession : ISession
     {
+        DefaultTranscoder _transcoder = new DefaultTranscoder();
         private static readonly RandomNumberGenerator CryptoRandom = RandomNumberGenerator.Create();
         private const int IdByteCount = 16;
         private readonly IDistributedCache _cache;
         private readonly string _sessionKey;
         private readonly TimeSpan _idleTimeout;
+        private readonly TimeSpan _ioTimeout;
         private readonly Func<bool> _tryEstablishSession;
         private readonly ILogger<CouchbaseSession> _logger;
         private readonly bool _isNewSessionKey;
@@ -27,12 +32,13 @@ namespace Couchbase.Extensions.Session
         private bool _isAvailable;
         private string _sessionId;
         private byte[] _sessionIdBytes;
-        private Dictionary<string, object> _store;
+        private Dictionary<string, byte[]> _store;
 
         public CouchbaseSession(
             IDistributedCache cache,
             string sessionKey,
             TimeSpan idleTimeout,
+            TimeSpan ioTimeout,
             Func<bool> tryEstablishSession,
             ILoggerFactory loggerFactory,
             bool isNewSessionKey)
@@ -60,10 +66,12 @@ namespace Couchbase.Extensions.Session
             _cache = cache;
             _sessionKey = sessionKey;
             _idleTimeout = idleTimeout;
+            _ioTimeout = ioTimeout == TimeSpan.Zero ? TimeSpan.FromSeconds(3) : ioTimeout;
+            _ioTimeout = ioTimeout;
             _tryEstablishSession = tryEstablishSession;
             _logger = loggerFactory.CreateLogger<CouchbaseSession>();
             _isNewSessionKey = isNewSessionKey;
-            _store = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            _store = new Dictionary<string, byte[]>();
         }
 
         private void Load()
@@ -72,15 +80,14 @@ namespace Couchbase.Extensions.Session
             {
                 try
                 {
-                    var data = _cache.Get<Dictionary<string, object>>(_sessionKey);
-                    if (!_isNewSessionKey && _store == null)
-                    {
-                        _logger.LogWarning(2, "Accessing expired session, Key:{0}", _sessionKey);
-                    }
-
+                    var data = _cache.Get<Dictionary<string, byte[]>>(_sessionKey);
                     if(data != null)
                     {
-                        _store = new Dictionary<string, object>(data, StringComparer.OrdinalIgnoreCase);
+                        _store = new Dictionary<string, byte[]>(data, StringComparer.OrdinalIgnoreCase);
+                    }
+                    else if (!_isNewSessionKey)
+                    {
+                        _logger.LogWarning(2, "Accessing expired session, Key:{0}", _sessionKey);
                     }
                     _isAvailable = true;
                 }
@@ -98,20 +105,20 @@ namespace Couchbase.Extensions.Session
             }
         }
 
-        public async Task LoadAsync()
+        public async Task LoadAsync(CancellationToken token)
         {
             if (!_loaded)
             {
                 try
                 {
-                    var data = await _cache.GetAsync<Dictionary<string, object>>(_sessionKey);
-                    if (!_isNewSessionKey && _store == null)
-                    {
-                        _logger.LogWarning(2, "Accessing expired session, Key:{0}", _sessionKey);
-                    }
+                    var data = await _cache.GetAsync<Dictionary<string, byte[]>>(_sessionKey);
                     if(data != null)
                     {
-                        _store = new Dictionary<string, object>(data, StringComparer.OrdinalIgnoreCase);
+                        _store = new Dictionary<string, byte[]>(data, StringComparer.OrdinalIgnoreCase);
+                    }
+                    else if (!_isNewSessionKey)
+                    {
+                        _logger.LogWarning(2, "Accessing expired session, Key:{0}", _sessionKey);
                     }
                     _isAvailable = true;
                 }
@@ -129,7 +136,7 @@ namespace Couchbase.Extensions.Session
             }
         }
 
-        public async Task CommitAsync()
+        public async Task CommitAsync(CancellationToken token)
         {
             if (_isModified)
             {
@@ -137,7 +144,7 @@ namespace Couchbase.Extensions.Session
                 {
                     try
                     {
-                        var data = await _cache.GetAsync<Dictionary<string, object>>(_sessionKey);
+                        var data = await _cache.GetAsync<Dictionary<string, byte[]>>(_sessionKey);
                         if (data == null)
                         {
                             _logger.LogInformation(3, "Session started; Key:{sessionKey}, Id:{sessionId}", _sessionKey, Id);
@@ -159,7 +166,7 @@ namespace Couchbase.Extensions.Session
             }
             else
             {
-                await _cache.RefreshAsync(_sessionKey);
+                await _cache.RefreshAsync(_sessionKey, token);
             }
         }
 
@@ -172,7 +179,7 @@ namespace Couchbase.Extensions.Session
         public bool TryGetValue(string key, out byte[] value)
         {
             Load();
-            object item;
+            byte[] item;
             var success = _store.TryGetValue(key, out item);
             if (success)
             {
@@ -211,9 +218,10 @@ namespace Couchbase.Extensions.Session
         public bool TryGetValue<T>(string key, out T value)
         {
             Load();
-            object item;
+            byte[] item;
+            value = default(T);
             var success = _store.TryGetValue(key, out item);
-            value = (T) item;
+            value = _transcoder.Decode<T>(item, 0, item.Length, new Flags(), OperationCode.NoOp);
             return success;
         }
 
@@ -231,15 +239,11 @@ namespace Couchbase.Extensions.Session
                 }
             }
             _isModified = true;
-            _store[key] = value;
+            _store[key] = ConvertToBytes(value);
         }
 
         public void Set(string key, byte[] value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
             if (IsAvailable)
             {
                 if (!_tryEstablishSession())
@@ -248,7 +252,7 @@ namespace Couchbase.Extensions.Session
                 }
             }
             _isModified = true;
-            _store[key] = value;
+            _store[key] = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public void Remove(string key)

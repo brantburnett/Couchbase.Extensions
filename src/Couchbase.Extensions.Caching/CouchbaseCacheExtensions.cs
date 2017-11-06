@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core;
 using Microsoft.Extensions.Caching.Distributed;
@@ -84,7 +86,6 @@ namespace Couchbase.Extensions.Caching
         {
             IOptions<CouchbaseCacheOptions> options;
             var bucket = GetBucket(cache, out options);
-
             return (await bucket.GetAsync<T>(key)).Value;
         }
 
@@ -177,8 +178,7 @@ namespace Couchbase.Extensions.Caching
         /// <returns></returns>
         internal static TimeSpan GetLifetime(IDistributedCache cache, DistributedCacheEntryOptions itemOptions = null)
         {
-            var couchbaseCache = cache as CouchbaseCache;
-            if (couchbaseCache == null)
+            if (!(cache is ICouchbaseCache couchbaseCache))
             {
                 throw new NotSupportedException("The IDistributedCache must be a CouchbaseCache.");
             }
