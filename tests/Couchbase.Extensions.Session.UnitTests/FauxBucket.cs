@@ -22,6 +22,12 @@ namespace Couchbase.Extensions.Session.UnitTests
         private Dictionary<string, BucketItem> _store = new Dictionary<string, BucketItem>();
         private DefaultSerializer _serializer = new DefaultSerializer();
 
+        public bool DisableGet { get; set; }
+
+        public bool DisableSetAsync { get; set; }
+
+        public bool DisableRefreshAsync { get; set; }
+
         public void Dispose()
         {
             throw new NotImplementedException();
@@ -200,6 +206,10 @@ namespace Couchbase.Extensions.Session.UnitTests
 
         public Task<IOperationResult<T>> UpsertAsync<T>(string key, T value, TimeSpan expiration)
         {
+            if (DisableSetAsync)
+            {
+                throw new NotSupportedException();
+            }
             _store[key] = new BucketItem(_store, key, _serializer.Serialize(value), expiration);
             return Task.FromResult((IOperationResult<T>)new FauxOperationResult<T>
             {
@@ -871,7 +881,7 @@ namespace Couchbase.Extensions.Session.UnitTests
 
         public Task<IOperationResult<T>> InsertAsync<T>(string key, T value, TimeSpan expiration)
         {
-            return InsertAsync(key, value, expiration);
+            return InsertAsync(key, value, (uint)expiration.TotalSeconds);
         }
 
         public Task<IOperationResult<T>> InsertAsync<T>(string key, T value, TimeSpan expiration, TimeSpan timeout)
@@ -1231,7 +1241,22 @@ namespace Couchbase.Extensions.Session.UnitTests
 
         public Task<IOperationResult<T>> GetAndTouchAsync<T>(string key, TimeSpan expiration)
         {
-            throw new NotImplementedException();
+            if (DisableGet)
+            {
+                throw new NotSupportedException();
+            }
+            if (_store.TryGetValue(key, out BucketItem item))
+            {
+                return Task.FromResult((IOperationResult<T>)new FauxOperationResult<T>
+                {
+                    Success = true,
+                    Value = _serializer.Deserialize<T>(item.Value, 0, item.Value.Length)
+                });
+            }
+            return Task.FromResult((IOperationResult<T>)new FauxOperationResult<T>
+            {
+                Success = false
+            });
         }
 
         public Task<IOperationResult<T>> GetAndTouchAsync<T>(string key, TimeSpan expiration, TimeSpan timeout)
@@ -1321,6 +1346,10 @@ namespace Couchbase.Extensions.Session.UnitTests
 
         public Task<IOperationResult<T>> GetAsync<T>(string key)
         {
+            if (DisableGet)
+            {
+                throw new NotSupportedException();
+            }
             if (_store.TryGetValue(key, out BucketItem item))
             {
                 return Task.FromResult((IOperationResult<T>) new FauxOperationResult<T>

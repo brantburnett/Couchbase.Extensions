@@ -12,12 +12,7 @@ namespace Couchbase.Extensions.Caching
     {
         internal static readonly TimeSpan InfiniteLifetime = TimeSpan.Zero;
 
-        /// <summary>
-        /// Gets the Couchbase bucket as the backing store.
-        /// </summary>
-        /// <value>
-        /// The bucket.
-        /// </value>
+        /// <inheritdoc />
         public IBucket Bucket { get; }
 
         /// <summary>
@@ -62,6 +57,7 @@ namespace Couchbase.Extensions.Caching
         /// <returns>The cache item if found, otherwise null.</returns>
         public async Task<byte[]> GetAsync(string key, CancellationToken token = new CancellationToken())
         {
+            token.ThrowIfCancellationRequested();
             if (key == null)
             {
                 throw new ArgumentNullException(nameof(key));
@@ -77,6 +73,7 @@ namespace Couchbase.Extensions.Caching
         /// <returns>The cache item if found, otherwise null.</returns>
         async Task<byte[]> IDistributedCache.GetAsync(string key, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
             if (key == null)
             {
                 throw new ArgumentNullException(nameof(key));
@@ -116,6 +113,7 @@ namespace Couchbase.Extensions.Caching
         public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options,
             CancellationToken token = new CancellationToken())
         {
+            token.ThrowIfCancellationRequested();
             if (key == null)
             {
                 throw new ArgumentNullException(nameof(key));
@@ -151,6 +149,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="token">The <see cref="CancellationToken"/> for the operation.</param>
         public async Task RefreshAsync(string key, CancellationToken token = new CancellationToken())
         {
+            token.ThrowIfCancellationRequested();
             if (key == null)
             {
                 throw new ArgumentNullException(nameof(key));
@@ -180,6 +179,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="token">The <see cref="CancellationToken"/> for the operation.</param>
         public async Task RemoveAsync(string key, CancellationToken token = new CancellationToken())
         {
+            token.ThrowIfCancellationRequested();
             if (key == null)
             {
                 throw new ArgumentNullException(nameof(key));
@@ -188,14 +188,7 @@ namespace Couchbase.Extensions.Caching
             await Bucket.RemoveAsync(key);
         }
 
-        /// <summary>
-        /// Gets the lifetime or expiration from the <see cref="DistributedCacheEntryOptions"/>. Only
-        /// sliding expiration is currently supported. If <see cref="DistributedCacheEntryOptions.SlidingExpiration"/>
-        /// if not set, then the <see cref="CouchbaseCacheOptions.LifeSpan"/> will be used. If it is empty then the
-        /// default lifespan of zero (0) will be used which is infinite expiration.
-        /// </summary>
-        /// <param name="options"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public TimeSpan GetLifetime(DistributedCacheEntryOptions options = null)
         {
             if (options?.SlidingExpiration != null)

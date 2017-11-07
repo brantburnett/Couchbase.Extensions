@@ -24,7 +24,7 @@ namespace Couchbase.Extensions.Session.UnitTests
             op.Setup(x => x.Value).Returns(new Dictionary<string, byte[]>());
 
             var bucket = new Mock<IBucket>();
-            bucket.Setup(x => x.GetAsync<Dictionary<string, byte[]>>(It.IsAny<string>()))
+            bucket.Setup(x => x.GetAndTouchAsync<Dictionary<string, byte[]>>(It.IsAny<string>(), It.IsAny<TimeSpan>()))
                 .Returns(Task.FromResult(op.Object));
 
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
@@ -44,7 +44,7 @@ namespace Couchbase.Extensions.Session.UnitTests
             var op = new Mock<IOperationResult<Dictionary<string,byte[]>>>(); //value is null
 
             var bucket = new Mock<IBucket>();
-            bucket.Setup(x => x.GetAsync<Dictionary<string, byte[]>>(It.IsAny<string>()))
+            bucket.Setup(x => x.GetAndTouchAsync<Dictionary<string, byte[]>>(It.IsAny<string>(), It.IsAny<TimeSpan>()))
                 .Returns(Task.FromResult(op.Object));
 
             var provider = new Mock<ICouchbaseCacheBucketProvider>();
