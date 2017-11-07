@@ -6,7 +6,7 @@
     <PackageId>Couchbase.Extensions.DependencyInjection.UnitTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <RuntimeFrameworkVersion>1.1.2</RuntimeFrameworkVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <AssetTargetFallback>$(AssetTargetFallback);dnxcore50</AssetTargetFallback>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
