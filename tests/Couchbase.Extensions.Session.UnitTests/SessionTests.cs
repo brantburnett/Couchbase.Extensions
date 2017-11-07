@@ -578,8 +578,10 @@ namespace Couchbase.Extensions.Session.UnitTests
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton(typeof(ILoggerFactory), loggerFactory);
-                    //services.AddSingleton<IDistributedCache>(new FauxCouchbaseCache());
-                    services.AddDistributedMemoryCache();
+                    services.AddSingleton<IDistributedCache>(new FauxCouchbaseCache()
+                    {
+                        DisableGet = true
+                    });
                     services.AddCouchbaseSession();
                 });
 

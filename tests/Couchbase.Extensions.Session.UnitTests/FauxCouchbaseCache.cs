@@ -12,14 +12,27 @@ namespace Couchbase.Extensions.Session.UnitTests
     {
         public FauxCouchbaseCache()
         {
+            Options = new CouchbaseCacheOptions();
             Bucket = new FauxBucket();
         }
 
-        public bool DisableGet { get; set; }
+        public bool DisableGet
+        {
+            get => ((FauxBucket) Bucket).DisableGet;
+            set => ((FauxBucket) Bucket).DisableGet = value;
+        }
 
-        public bool DisableSetAsync { get; set; }
+        public bool DisableSetAsync
+        {
+            get => ((FauxBucket)Bucket).DisableSetAsync;
+            set => ((FauxBucket)Bucket).DisableSetAsync = value;
+        }
 
-        public bool DisableRefreshAsync { get; set; }
+        public bool DisableRefreshAsync
+        {
+            get => ((FauxBucket)Bucket).DisableRefreshAsync;
+            set => ((FauxBucket)Bucket).DisableRefreshAsync = value;
+        }
 
         internal static readonly TimeSpan InfiniteLifetime = TimeSpan.Zero;
 
