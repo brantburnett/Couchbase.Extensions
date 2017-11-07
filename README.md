@@ -34,5 +34,7 @@ New to Couchbase Server 5.0 is [Role Based Authentication](https://developer.cou
     
 For examples checkout the [TestApp](tests/TestApp) and [Couchbase.Extensions.DependencyInjection.IntegrationTests](tests/Couchbase.Extensions.DependencyInjection.IntegrationTests) projects in this repo.
 
+If you are using a Couchbase Server version that does not support RBAC (all Pre-5.0 servers), then you will use the traditional Bucket name and password to open the bucket.
+
 ## Licensing ##
 Open source under the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license. Please contribute :)
