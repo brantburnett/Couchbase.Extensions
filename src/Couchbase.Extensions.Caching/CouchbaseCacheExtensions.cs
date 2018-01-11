@@ -83,7 +83,7 @@ namespace Couchbase.Extensions.Caching
             }
 
             var bucket = GetBucket(cache);
-            return options.SlidingExpiration.HasValue ?
+            return options?.SlidingExpiration != null ?
                 bucket.GetAndTouch<T>(key, options.SlidingExpiration.Value).Value :
                 bucket.Get<T>(key).Value;
         }
@@ -140,7 +140,7 @@ namespace Couchbase.Extensions.Caching
             }
 
             var bucket = GetBucket(cache);
-            if (options.SlidingExpiration.HasValue)
+            if (options?.SlidingExpiration != null)
             {
                 return (await bucket.GetAndTouchAsync<T>(key, options.SlidingExpiration.Value).ConfigureAwait(false)).Value;
             }
