@@ -46,7 +46,8 @@ namespace Couchbase.Extensions.Caching
             {
                 throw new ArgumentNullException(nameof(key));
             }
-            return Bucket.Get<byte[]>(key).Value;
+            var result = Bucket.Get<byte[]>(key);
+            return result.Value;
         }
 
         /// <summary>
@@ -62,7 +63,9 @@ namespace Couchbase.Extensions.Caching
             {
                 throw new ArgumentNullException(nameof(key));
             }
-            return (await Bucket.GetAsync<byte[]>(key)).Value;
+
+            var result = await Bucket.GetAsync<byte[]>(key).ConfigureAwait(false);
+            return result.Value;
         }
 
         /// <summary>
@@ -79,7 +82,7 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            return (await Bucket.GetAsync<byte[]>(key)).Value;
+            return (await Bucket.GetAsync<byte[]>(key).ConfigureAwait(false)).Value;
         }
 
         /// <summary>
@@ -99,8 +102,7 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(value));
             }
 
-            var lifeTime = GetLifetime(options);
-            Bucket.Upsert(key, value, lifeTime);
+            Bucket.Upsert(key, value, GetLifetime(options));
         }
 
         /// <summary>
@@ -123,8 +125,7 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(value));
             }
 
-            var lifeTime = GetLifetime(options);
-            return Bucket.UpsertAsync(key, value, lifeTime);
+            return Bucket.UpsertAsync(key, value, GetLifetime(options));
         }
 
         /// <summary>
@@ -138,8 +139,7 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var lifeTime = GetLifetime();
-            Bucket.Touch(key, lifeTime);
+            Bucket.Touch(key, GetLifetime());
         }
 
         /// <summary>
@@ -155,8 +155,7 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var lifeTime = GetLifetime();
-            await Bucket.TouchAsync(key, lifeTime);
+            await Bucket.TouchAsync(key, GetLifetime()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -185,18 +184,13 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            await Bucket.RemoveAsync(key);
+            await Bucket.RemoveAsync(key).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
         public TimeSpan GetLifetime(DistributedCacheEntryOptions options = null)
         {
-            if (options?.SlidingExpiration != null)
-            {
-                return options.SlidingExpiration.Value;
-            }
-
-            return Options.Value.LifeSpan ?? InfiniteLifetime;
+            return CouchbaseCacheExtensions.GetLifetime(this, options);
         }
     }
 }

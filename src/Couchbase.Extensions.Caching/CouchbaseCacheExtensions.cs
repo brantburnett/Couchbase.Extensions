@@ -30,7 +30,7 @@ namespace Couchbase.Extensions.Caching
             }
 
             var bucket = GetBucket(cache);
-            bucket.Upsert(key, value, GetLifetime(cache, options));
+            var result = bucket.Upsert(key, value, GetLifetime(cache, options));
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Couchbase.Extensions.Caching
             }
 
             var bucket = GetBucket(cache);
-            await bucket.UpsertAsync(key, value, GetLifetime(cache, options));
+            var result = await bucket.UpsertAsync(key, value, GetLifetime(cache, options)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -83,8 +83,9 @@ namespace Couchbase.Extensions.Caching
             }
 
             var bucket = GetBucket(cache);
-
-            return bucket.GetAndTouch<T>(key, GetLifetime(cache, options)).Value;
+            return options.SlidingExpiration.HasValue ?
+                bucket.GetAndTouch<T>(key, options.SlidingExpiration.Value).Value :
+                bucket.Get<T>(key).Value;
         }
 
         /// <summary>
@@ -139,7 +140,11 @@ namespace Couchbase.Extensions.Caching
             }
 
             var bucket = GetBucket(cache);
-            return (await bucket.GetAndTouchAsync<T>(key, GetLifetime(cache, options))).Value;
+            if (options.SlidingExpiration.HasValue)
+            {
+                return (await bucket.GetAndTouchAsync<T>(key, options.SlidingExpiration.Value).ConfigureAwait(false)).Value;
+            }
+            return (await bucket.GetAsync<T>(key).ConfigureAwait(false)).Value;
         }
 
         /// <summary>
@@ -186,23 +191,32 @@ namespace Couchbase.Extensions.Caching
         /// <param name="cache"></param>
         /// <param name="itemOptions"></param>
         /// <returns></returns>
-        internal static TimeSpan GetLifetime(IDistributedCache cache, DistributedCacheEntryOptions itemOptions = null)
+        public static TimeSpan GetLifetime(IDistributedCache cache, DistributedCacheEntryOptions itemOptions = null)
         {
             if (!(cache is ICouchbaseCache couchbaseCache))
             {
                 throw new NotSupportedException("The IDistributedCache must be a CouchbaseCache.");
             }
-
+            if (itemOptions == null)
+            {
+                if (couchbaseCache.Options.LifeSpan != null) return couchbaseCache.Options.LifeSpan.Value;
+            }
+            if (itemOptions?.AbsoluteExpiration != null && itemOptions.SlidingExpiration.HasValue)
+            {
+                return new TimeSpan(Math.Min(itemOptions.AbsoluteExpiration.Value.Ticks, itemOptions.SlidingExpiration.Value.Ticks));
+            }
             if (itemOptions?.SlidingExpiration != null)
             {
                 return itemOptions.SlidingExpiration.Value;
             }
-
-            if (itemOptions == null)
+            if (itemOptions?.AbsoluteExpirationRelativeToNow != null)
             {
-                return CouchbaseCache.InfiniteLifetime;
+                return new TimeSpan(DateTime.UtcNow.Add(itemOptions.AbsoluteExpirationRelativeToNow.Value).Ticks);
             }
-
+            if (itemOptions?.AbsoluteExpiration != null)
+            {
+                return TimeSpan.FromTicks(itemOptions.AbsoluteExpiration.Value.Ticks);
+            }
             return couchbaseCache.Options.Value.LifeSpan ?? CouchbaseCache.InfiniteLifetime;
         }
     }
