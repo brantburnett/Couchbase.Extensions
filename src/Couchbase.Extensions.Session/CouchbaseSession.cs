@@ -78,7 +78,10 @@ namespace Couchbase.Extensions.Session
                     using (var timeout = new CancellationTokenSource(_ioTimeout))
                     {
                         var cts = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, cancellationToken);
-                        var data = await _cache.GetAsync<Dictionary<string, byte[]>>(_sessionKey, null, cts.Token);
+                        var data = await _cache.GetAsync<Dictionary<string, byte[]>>(_sessionKey, new DistributedCacheEntryOptions
+                        {
+                            SlidingExpiration = _idleTimeout
+                        }, cts.Token);
                         if (data != null)
                         {
                             _store = new Dictionary<string, byte[]>(data, StringComparer.OrdinalIgnoreCase);

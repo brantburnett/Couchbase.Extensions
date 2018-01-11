@@ -30,7 +30,7 @@ namespace Couchbase.Extensions.Caching
         /// Gets the lifetime or expiration from the <see cref="DistributedCacheEntryOptions"/>. Only
         /// sliding expiration is currently supported. If <see cref="DistributedCacheEntryOptions.SlidingExpiration"/>
         /// if not set, then the <see cref="CouchbaseCacheOptions.LifeSpan"/> will be used. If it is empty then the
-        /// default lifespan of zero (0) will be used which is infinite expiration.
+        /// default lifespan of zero (0) will be used which is infinite expiration; the default is 20 minutes.
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
