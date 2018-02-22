@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.14
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}"
 EndProject
@@ -30,6 +30,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Caching.UnitTests", "tests\Couchbase.Extensions.Caching.UnitTests\Couchbase.Extensions.Caching.UnitTests.csproj", "{DC727A08-3988-4B71-8362-1F7870B87157}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Session.UnitTests", "tests\Couchbase.Extensions.Session.UnitTests\Couchbase.Extensions.Session.UnitTests.csproj", "{14E1822C-F365-48FF-B265-7D679607872E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Encryption", "src\Couchbase.Extensions.Encryption\Couchbase.Extensions.Encryption.csproj", "{DD60207E-0652-49C1-8611-9CD9646EDD91}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Encryption.IntegrationTests", "tests\Couchbase.Extensions.Encryption.IntegrationTests\Couchbase.Extensions.Encryption.IntegrationTests.csproj", "{BE90780E-AE8E-4973-8D1B-66179971CA46}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Encryption.UnitTests", "tests\Couchbase.Extensions.Encryption.UnitTests\Couchbase.Extensions.Encryption.UnitTests.csproj", "{267B2EDD-EE6C-4CE4-AC6A-7338D843357D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +87,18 @@ Global
 		{14E1822C-F365-48FF-B265-7D679607872E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14E1822C-F365-48FF-B265-7D679607872E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14E1822C-F365-48FF-B265-7D679607872E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD60207E-0652-49C1-8611-9CD9646EDD91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD60207E-0652-49C1-8611-9CD9646EDD91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD60207E-0652-49C1-8611-9CD9646EDD91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD60207E-0652-49C1-8611-9CD9646EDD91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE90780E-AE8E-4973-8D1B-66179971CA46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE90780E-AE8E-4973-8D1B-66179971CA46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE90780E-AE8E-4973-8D1B-66179971CA46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE90780E-AE8E-4973-8D1B-66179971CA46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{267B2EDD-EE6C-4CE4-AC6A-7338D843357D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{267B2EDD-EE6C-4CE4-AC6A-7338D843357D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{267B2EDD-EE6C-4CE4-AC6A-7338D843357D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{267B2EDD-EE6C-4CE4-AC6A-7338D843357D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,5 +115,11 @@ Global
 		{1F91B9B9-DF56-4F73-B593-B080272B620D} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
 		{DC727A08-3988-4B71-8362-1F7870B87157} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
 		{14E1822C-F365-48FF-B265-7D679607872E} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
+		{DD60207E-0652-49C1-8611-9CD9646EDD91} = {EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}
+		{BE90780E-AE8E-4973-8D1B-66179971CA46} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
+		{267B2EDD-EE6C-4CE4-AC6A-7338D843357D} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BBE581CF-99BB-42AD-A7C8-59FF4B45DB55}
 	EndGlobalSection
 EndGlobal
