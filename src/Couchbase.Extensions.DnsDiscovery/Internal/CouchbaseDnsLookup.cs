@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Couchbase.Configuration.Client;
 using DnsClient;
@@ -29,6 +30,33 @@ namespace Couchbase.Extensions.DnsDiscovery.Internal
             _logger = logger;
         }
 
+        public void Apply(CouchbaseClientDefinition clientDefinition)
+        {
+            if (clientDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(clientDefinition));
+            }
+
+            if (clientDefinition.Servers.Count != 1)
+            {
+                // Must have a single host
+                return;
+            }
+
+            var recordName = TestForSrvRecordName(clientDefinition.Servers[0]);
+            if (recordName != null)
+            {
+                var resolvedServers = Resolve(recordName);
+                if (resolvedServers != null)
+                {
+                    clientDefinition.Servers.Clear();
+                    clientDefinition.Servers.AddRange(resolvedServers);
+                }
+            }
+
+            // Leaves servers in place if no DNS SRV records match
+        }
+
         public void Apply(CouchbaseClientDefinition clientDefinition, string recordName)
         {
             if (clientDefinition == null)
@@ -52,24 +80,26 @@ namespace Couchbase.Extensions.DnsDiscovery.Internal
 
             if (!recordName.StartsWith("_"))
             {
+                var serversPrepended = Resolve("_couchbase._tcp." + recordName);
                 // Automatically prepend _couchbase._tcp to the recordName
-                if (ApplyInternal(clientDefinition, "_couchbase._tcp." + recordName))
+                if (serversPrepended != null)
                 {
                     // We found an SRV record with _couchbase._tcp prepended, so stop
+                    clientDefinition.Servers.AddRange(serversPrepended);
                     return;
                 }
             }
 
             // Try the record name without prepending _couchbase._tcp (backwards compatibility)
-            ApplyInternal(clientDefinition, recordName);
+            var servers = Resolve(recordName);
+            if (servers != null)
+            {
+                clientDefinition.Servers.AddRange(servers);
+            }
         }
 
-        private bool ApplyInternal(CouchbaseClientDefinition clientDefinition, string recordName)
+        private List<Uri> Resolve(string recordName)
         {
-            if (clientDefinition == null)
-            {
-                throw new ArgumentNullException(nameof(clientDefinition));
-            }
             if (recordName == null)
             {
                 throw new ArgumentNullException(nameof(recordName));
@@ -102,8 +132,10 @@ namespace Couchbase.Extensions.DnsDiscovery.Internal
                 if (!servers.Any())
                 {
                     _logger.LogError("No SRV records returned for query '{0}'", recordName);
-                    return false;
+                    return null;
                 }
+
+                var result = new List<Uri>();
 
                 var firstPriority = servers.First().Priority;
                 foreach (var server in servers.Where(p => p.Priority == firstPriority))
@@ -112,15 +144,15 @@ namespace Couchbase.Extensions.DnsDiscovery.Internal
 
                     _logger.LogInformation("Got Couchbase server '{0}'", uri);
 
-                    clientDefinition.Servers.Add(uri);
+                    result.Add(uri);
                 }
 
-                return true;
+                return result;
             }
             catch (Exception ex)
             {
                 _logger.LogError(0, ex, "Exception getting Couchbase servers for '{0}'", recordName);
-                return false;
+                return null;
             }
         }
 
@@ -132,6 +164,36 @@ namespace Couchbase.Extensions.DnsDiscovery.Internal
             }
 
             return target;
+        }
+
+        /// <summary>
+        /// Tests to see if a URI should use SRV lookup
+        /// </summary>
+        /// <param name="uri"><see cref="Uri"/> to test.</param>
+        /// <returns>SRV record name to lookup, or null if not applicable</returns>
+        private static string TestForSrvRecordName(Uri uri)
+        {
+            // Based upon https://github.com/couchbaselabs/sdk-doctor/blob/master/connstr/connstr.go#L24
+
+            if (uri.Scheme != "couchbase" && uri.Scheme != "couchbases")
+            {
+                // Must be couchbase or couchbases
+                return null;
+            }
+
+            if (uri.Host.Contains(';'))
+            {
+                // Must have a single host
+                return null;
+            }
+
+            if (!uri.IsDefaultPort)
+            {
+                // Must not include a port in the URI
+                return null;
+            }
+
+            return $"_{uri.Scheme}._tcp.{uri.Host}";
         }
     }
 }

@@ -34,20 +34,32 @@ public class Startup
     {
         // Register Couchbase with configuration section
         services.AddCouchbase(Configuration.GetSection("Couchbase"));
-
-        if (Environment.IsProduction())
-        {
-            // Lookup DNS SRV records using the query _couchbase._tcp.services.local
-            services.AddCouchbaseDnsDiscovery("_couchbase._tcp.services.local");
-
-           // Note: the record name above could also be retreived from configuration
-        }
+        services.AddCouchbaseDnsDiscovery();
 
         // Register other services, like .AddMvc()
     }
 ```
 
-The above configuration will perform a DNS SRV query (only in the Production environment).  The results will be used to replace the Servers list in the Couchbase client configuration.  Any servers listed in the configuration section will be thrown out.
+Example configuration file:
+```json
+{
+    "Couchbase": {
+        "Username": "Administrator",
+        "Password": "Password",
+        "Servers": [
+            "couchbase://services.local/"
+        ]
+    }
+}
+```
+
+The above configuration will perform a DNS SRV query for `_couchbase._tcp.services.local`, based on the single entry in the Servers section of the configuration.  The results will be used to replace the Servers list in the Couchbase client configuration.
+
+The following rules will be applied:
+1. There must be only one URI in the Servers collection
+2. The URI must use either the "couchbase://" or "couchbases://" scheme
+3. The URI must not have a port number
+4. If these rules aren't matched, or if no DNS SRV records is found, then the client will fallback to directly connecting to the listed URIs
 
 Note that only the servers with the highest priority in the DNS SRV response will be used.  For example, if the response returns 2 servers with a priority of 10 and 2 different servers with a priority of 20, the first set will be used to initialize the cluster.  SRV record failover is not supported.
 
