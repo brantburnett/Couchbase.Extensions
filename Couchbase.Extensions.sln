@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B81EF74B-2AB2-49D1-A705-E34F87F561E6}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.DependencyInjection", "src\Couchbase.Extensions.DependencyInjection\Couchbase.Extensions.DependencyInjection.csproj", "{8CFC2946-514D-4606-83A3-809E19CF94A6}"
@@ -36,6 +34,15 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Encryption.IntegrationTests", "tests\Couchbase.Extensions.Encryption.IntegrationTests\Couchbase.Extensions.Encryption.IntegrationTests.csproj", "{BE90780E-AE8E-4973-8D1B-66179971CA46}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Encryption.UnitTests", "tests\Couchbase.Extensions.Encryption.UnitTests\Couchbase.Extensions.Encryption.UnitTests.csproj", "{267B2EDD-EE6C-4CE4-AC6A-7338D843357D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3C4744F1-A4B6-46A1-95FB-14B7B4CDB181}"
+	ProjectSection(SolutionItems) = preProject
+		docs\caching.md = docs\caching.md
+		docs\dependency-injection.md = docs\dependency-injection.md
+		docs\dns-srv.md = docs\dns-srv.md
+		encryption.md = encryption.md
+		docs\session.md = docs\session.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
