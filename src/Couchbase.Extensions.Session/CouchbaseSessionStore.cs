@@ -24,17 +24,8 @@ namespace Couchbase.Extensions.Session
         /// </exception>
         public CouchbaseSessionStore(IDistributedCache cache, ILoggerFactory loggerFactory)
         {
-            if (cache == null)
-            {
-                throw new ArgumentNullException(nameof(cache));
-            }
-            if (loggerFactory == null)
-            {
-                throw new ArgumentNullException(nameof(loggerFactory));
-            }
-
-            _cache = cache;
-            _loggerFactory = loggerFactory;
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         /// <summary>
