@@ -7,6 +7,7 @@ using Couchbase.Analytics;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
 using Couchbase.Core.Buckets;
+using Couchbase.Core.Monitoring;
 using Couchbase.Core.Serialization;
 using Couchbase.Core.Version;
 using Couchbase.IO.Operations;
@@ -488,6 +489,11 @@ namespace Couchbase.Extensions.Session.UnitTests
         }
 
         public Task<IDocumentResult<T>[]> ReplaceAsync<T>(List<IDocument<T>> documents, ReplicateTo replicateTo, PersistTo persistTo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IDocumentResult<T>[]> ReplaceAsync<T>(List<IDocument<T>> documents, ReplicateTo replicateTo, PersistTo persistTo, TimeSpan timeout)
         {
             throw new NotImplementedException();
         }
@@ -1114,6 +1120,11 @@ namespace Couchbase.Extensions.Session.UnitTests
         }
 
         public Task<IOperationResult> RemoveAsync(string key, ReplicateTo replicateTo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IOperationResult> RemoveAsync(string key, ReplicateTo replicateTo, TimeSpan timeout)
         {
             throw new NotImplementedException();
         }
@@ -2210,6 +2221,16 @@ namespace Couchbase.Extensions.Session.UnitTests
         }
 
         public IOperationResult Touch(string key, TimeSpan expiration, TimeSpan timeout)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IPingReport Ping(params ServiceType[] services)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IPingReport Ping(string reportId, params ServiceType[] services)
         {
             throw new NotImplementedException();
         }
