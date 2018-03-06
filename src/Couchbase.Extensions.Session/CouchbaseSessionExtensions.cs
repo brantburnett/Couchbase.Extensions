@@ -18,10 +18,9 @@ namespace Couchbase.Extensions.Session
         /// <exception cref="System.NotSupportedException">Only supported by CouchbaseDistributedSession!</exception>
         public static void SetObject<T>(this ISession session, string key, T value)
         {
-            var couchbaseSession = session as CouchbaseSession;
-            if (couchbaseSession == null)
+            if (!(session is CouchbaseSession couchbaseSession))
             {
-                throw new NotSupportedException("Only supported by CouchbaseDistributedSession!");
+                throw new NotSupportedException("Only supported by CouchbaseSession!");
             }
 
             couchbaseSession.Set(key, value);
@@ -37,14 +36,12 @@ namespace Couchbase.Extensions.Session
         /// <exception cref="System.NotSupportedException">Only supported by CouchbaseDistributedSession!</exception>
         public static T GetObject<T>(this ISession session, string key)
         {
-            var couchbaseSession = session as CouchbaseSession;
-            if (couchbaseSession == null)
+            if (!(session is CouchbaseSession couchbaseSession))
             {
-                throw new NotSupportedException("Only supported by CouchbaseDistributedSession!");
+                throw new NotSupportedException("Only supported by CouchbaseSession!");
             }
 
-            T value;
-            couchbaseSession.TryGetValue(key, out value);
+            couchbaseSession.TryGetValue(key, out T value);
             return value;
         }
     }

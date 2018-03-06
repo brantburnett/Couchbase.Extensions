@@ -327,5 +327,205 @@ namespace Couchbase.Extensions.DnsDiscovery.UnitTests.Internal
         }
 
         #endregion
+
+        #region Apply without recordName
+
+        [Fact]
+        public void ApplyNoRecordName_NoClientDefinition_Exception()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act/Assert
+
+            var ex = Assert.Throws<ArgumentNullException>(() => lookup.Apply(null));
+
+            Assert.Equal("clientDefinition", ex.ParamName);
+        }
+
+        [Fact]
+        public void ApplyNoRecordName_HttpOnly_NoDnsLookup()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(It.IsAny<string>()))
+                .ReturnsAsync(new List<SrvRecord>());
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                Servers = new List<Uri>
+                {
+                    new Uri("http://shouldstay/")
+                }
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal(1, clientDefinition.Servers.Count);
+            Assert.Equal(new Uri("http://shouldstay/"), clientDefinition.Servers[0]);
+
+            lookupClient
+                .Verify(m => m.QuerySrvAsync(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public void ApplyNoRecordName_CouchbaseWithPort_NoDnsLookup()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(It.IsAny<string>()))
+                .ReturnsAsync(new List<SrvRecord>());
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                Servers = new List<Uri>
+                {
+                    new Uri("couchbase://server:1000/")
+                }
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal(1, clientDefinition.Servers.Count);
+            Assert.Equal(new Uri("couchbase://server:1000/"), clientDefinition.Servers[0]);
+
+            lookupClient
+                .Verify(m => m.QuerySrvAsync(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public void ApplyNoRecordName_MultipleEntries_NoDnsLookup()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(It.IsAny<string>()))
+                .ReturnsAsync(new List<SrvRecord>());
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                Servers = new List<Uri>
+                {
+                    new Uri("couchbase://server/"),
+                    new Uri("couchbase://server2/")
+                }
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal(2, clientDefinition.Servers.Count);
+            Assert.Contains(new Uri("couchbase://server/"), clientDefinition.Servers);
+            Assert.Contains(new Uri("couchbase://server2/"), clientDefinition.Servers);
+
+            lookupClient
+                .Verify(m => m.QuerySrvAsync(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public void ApplyNoRecordName_CouchbaseNoDnsSrvFound_Unmodified()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(FullRecordName))
+                .ReturnsAsync(new List<SrvRecord>());
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                Servers = new List<Uri>
+                {
+                    new Uri("couchbase://services.local/")
+                }
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal(1, clientDefinition.Servers.Count);
+            Assert.Equal(new Uri("couchbase://services.local/"), clientDefinition.Servers[0]);
+
+            lookupClient
+                .Verify(m => m.QuerySrvAsync(FullRecordName), Times.Once);
+        }
+
+        [Fact]
+        public void ApplyNoRecordName_CouchbaseDnsSrvFound_Replaces()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(FullRecordName))
+                .ReturnsAsync(new List<SrvRecord>
+                {
+                    SrvRecord1Priority10,
+                    SrvRecord2Priority10
+                });
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                Servers = new List<Uri>
+                {
+                    new Uri("couchbase://services.local/")
+                }
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal(2, clientDefinition.Servers.Count);
+            Assert.Contains(ServerRecord1ExpectedUrl, clientDefinition.Servers);
+            Assert.Contains(ServerRecord2ExpectedUrl, clientDefinition.Servers);
+        }
+
+        #endregion
     }
 }

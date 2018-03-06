@@ -81,7 +81,9 @@ namespace Couchbase.Extensions.Session
                         var data = await _cache.GetAsync<Dictionary<string, byte[]>>(_sessionKey, new DistributedCacheEntryOptions
                         {
                             SlidingExpiration = _idleTimeout
-                        }, cts.Token);
+                        }, cts.Token).
+                        ConfigureAwait(false);
+
                         if (data != null)
                         {
                             _store = new Dictionary<string, byte[]>(data, StringComparer.OrdinalIgnoreCase);
@@ -119,7 +121,9 @@ namespace Couchbase.Extensions.Session
                         using (var timeout = new CancellationTokenSource(_ioTimeout))
                         {
                             var cts = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, token);
-                            var data = await _cache.GetAsync<Dictionary<string, byte[]>>(_sessionKey, cts.Token);
+                            var data = await _cache.GetAsync<Dictionary<string, byte[]>>(_sessionKey, cts.Token).
+                                ConfigureAwait(false);
+
                             if (data == null)
                             {
                                 _logger.LogInformation(3, "Session started; Key:{sessionKey}, Id:{sessionId}",
@@ -136,14 +140,15 @@ namespace Couchbase.Extensions.Session
                 await _cache.SetAsync(
                     _sessionKey,
                     _store,
-                    new DistributedCacheEntryOptions().SetSlidingExpiration(_idleTimeout));
+                    new DistributedCacheEntryOptions().SetSlidingExpiration(_idleTimeout)).
+                    ConfigureAwait(false);
 
                 _isModified = false;
                 _logger.LogDebug(5, "Session stored; Key:{sessionKey}, Id:{sessionId}, Count:{count}",_sessionKey, Id, _store.Count);
             }
             else
             {
-                await _cache.RefreshAsync(_sessionKey, token);
+                await _cache.RefreshAsync(_sessionKey, token).ConfigureAwait(false);
             }
         }
 
