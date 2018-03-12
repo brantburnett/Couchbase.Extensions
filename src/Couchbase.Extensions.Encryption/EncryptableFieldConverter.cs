@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Security.Authentication;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -26,10 +27,29 @@ namespace Couchbase.Extensions.Encryption
             var rawJson = SerializeAsJson(value);
             var cryptoProvider = CryptoProviders[ProviderName];
 
+            var rawBytes = System.Text.Encoding.UTF8.GetBytes(rawJson);
+            var cipherText = cryptoProvider.Encrypt(rawBytes, out var iv);
+            var base64CipherText = Convert.ToBase64String(cipherText);
+
+            byte[] signatureBytes = null;
+            if (cryptoProvider.RequiresAuthentication)
+            {
+                signatureBytes = cryptoProvider.GetSignature(cipherText, cryptoProvider.PrivateKeyName);
+            }
+
             var token = new JObject(
                 new JProperty("alg", cryptoProvider.Name),
                 new JProperty("kid", cryptoProvider.KeyName),
-                new JProperty("payload", cryptoProvider.Encrypt(rawJson)));
+                new JProperty("ciphertext", base64CipherText));
+
+            if (signatureBytes != null)
+            {
+                token.Add("sig", Convert.ToBase64String(signatureBytes));
+            }
+            if (iv != null)
+            {
+                token.Add("iv", Convert.ToBase64String(iv));
+            }
 
             token.WriteTo(writer);
         }
@@ -37,14 +57,34 @@ namespace Couchbase.Extensions.Encryption
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null) return null;
+
             var encryptedFields = (JObject)JToken.ReadFrom(reader);
             var alg = encryptedFields.SelectToken("alg");
             var kid = encryptedFields.SelectToken("kid");
-            var payload = encryptedFields.SelectToken("payload");
+            var cipherText = encryptedFields.SelectToken("ciphertext");
+            var iv = encryptedFields.SelectToken("iv");
+            var signature = encryptedFields.SelectToken("sig");
 
-            var cryptoProvider =  CryptoProviders[alg.Value<string>()];
-            var decryptedPayload = cryptoProvider.Decrypt(payload, kid.Value<string>());
-            return ConvertToType(decryptedPayload.ToString());
+            var cryptoProvider = CryptoProviders[alg.Value<string>()];
+
+            var cipherBytes = Convert.FromBase64String(cipherText.Value<string>());
+            byte[] ivBytes = null;
+            if (iv != null)
+            {
+                ivBytes = Convert.FromBase64String(iv.Value<string>());
+            }
+
+            if (signature != null)
+            {
+                if (signature.Value<string>() != Convert.ToBase64String(
+                        cryptoProvider.GetSignature(cipherBytes, cryptoProvider.PrivateKeyName)))
+                {
+                    throw new AuthenticationException("signatures do not match!");
+                }
+            }
+
+            var decryptedPayload = cryptoProvider.Decrypt(cipherBytes, ivBytes, kid.Value<string>());
+            return ConvertToType(System.Text.Encoding.UTF8.GetString(decryptedPayload));
         }
 
         public override bool CanConvert(Type objectType)

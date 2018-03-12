@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace Couchbase.Extensions.Encryption.Providers
 {
-    public class RsaCryptoProvider : ICryptoProvider
+    public class RsaCryptoProvider : CryptoProviderBase
     {
         public RsaCryptoProvider(IKeystoreProvider keyStore) : this()
         {
@@ -16,13 +16,56 @@ namespace Couchbase.Extensions.Encryption.Providers
         public RsaCryptoProvider()
         {
             KeySize = 2048;
-            Name = "RSA";
+            Name = "RSA-" + KeySize;
 #if NETSTANDARD
             Padding = RSAEncryptionPadding.Pkcs1;
 #endif
         }
 
         public IKeystoreProvider KeyStore { get; set; }
+
+        public override byte[] Decrypt(byte[] cipherBytes, byte[] iv = null, string keyName = null)
+        {
+#if NETSTANDARD
+            using (var rsa = new RSACng())
+            {
+                var privateKey = GetParameters(KeyStore.GetKey(PrivateKey));
+                rsa.ImportParameters(privateKey);
+
+                return rsa.Decrypt(cipherBytes, Padding);
+            }
+#else
+            using (var rsa = (RSACryptoServiceProvider)RSA.Create())
+            {
+                var privateKey = GetParameters(KeyStore.GetKey(PrivateKey));
+                rsa.ImportParameters(privateKey);
+
+                return rsa.Decrypt(cipherBytes, false);
+            }
+#endif
+        }
+
+        public override byte[] Encrypt(byte[] plainBytes, out byte[] iv)
+        {
+            iv = null;//iv does not apply here
+#if NETSTANDARD
+            using (var rsa = new RSACng())
+            {
+                var publicKey = GetParameters(KeyStore.GetKey(KeyName));
+                rsa.ImportParameters(publicKey);
+
+                return rsa.Encrypt(plainBytes, Padding);
+            }
+#else
+            using (var rsa = (RSACryptoServiceProvider)RSA.Create())
+            {
+                var publicKey = GetParameters(KeyStore.GetKey(KeyName));
+                rsa.ImportParameters(publicKey);
+
+                return rsa.Encrypt(plainBytes, false);
+            }
+#endif
+        }
 
         public object Decrypt(object value, string keyName = null)
         {
@@ -87,9 +130,7 @@ namespace Couchbase.Extensions.Encryption.Providers
             }
         }
 
-        public string Name { get; }
-
-        public string KeyName { get; set; }
+        public override bool RequiresAuthentication => false;
 
         public string PrivateKey { get; set; }
 

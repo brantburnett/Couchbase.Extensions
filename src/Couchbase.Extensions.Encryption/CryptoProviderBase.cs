@@ -1,23 +1,28 @@
-﻿
+﻿using System.Security.Cryptography;
+
 namespace Couchbase.Extensions.Encryption
 {
-    public interface ICryptoProvider
+    public abstract class CryptoProviderBase : ICryptoProvider
     {
-        IKeystoreProvider KeyStore { get; set; }
+        public IKeystoreProvider KeyStore { get; set; }
 
-        byte[] Decrypt(byte[] encryptedBytes, byte[] iv, string keyName = null);
+        public abstract byte[] Decrypt(byte[] encryptedBytes, byte[] iv, string keyName = null);
 
-        byte[] Encrypt(byte[] plainBytes, out byte[] iv);
+        public abstract byte[] Encrypt(byte[] plainBytes, out byte[] iv);
 
-        byte[] GetSignature(byte[] cipherBytes, string password);
+        public byte[] GetSignature(byte[] cipherBytes, string password)
+        {
+            var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+            using (var hmac = new HMACSHA256(passwordBytes))
+            {
+                return hmac.ComputeHash(cipherBytes);
+            }
+        }
 
-        string Name { get; }
-
-        string KeyName { get; set; }
-
-        string PrivateKeyName { get; set; }
-
-        bool RequiresAuthentication { get; }
+        public string Name { get; protected set; }
+        public string KeyName { get; set; }
+        public string PrivateKeyName { get; set; }
+        public abstract bool RequiresAuthentication { get; }
     }
 }
 

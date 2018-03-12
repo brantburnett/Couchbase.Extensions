@@ -1,11 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Couchbase.Extensions.Encryption.Providers
 {
-    public class AesCryptoProvider : ICryptoProvider
+    public class AesCryptoProvider : CryptoProviderBase
     {
         public AesCryptoProvider(IKeystoreProvider keystore) : this()
         {
@@ -14,48 +13,36 @@ namespace Couchbase.Extensions.Encryption.Providers
 
         public AesCryptoProvider()
         {
-            Name = "AES-256";
+            Name = "AES-256-HMAC-SHA256";
         }
 
-        public IKeystoreProvider KeyStore { get; set; }
-
-        public object Decrypt(object value, string keyName = null)
+        //value coming in should be Base64 decoded
+        public override byte[] Decrypt(byte[] encryptedBytes, byte[] iv, string keyName = null)
         {
-            var key = KeyStore.GetKey(keyName??KeyName);
-            var encodedJsonBytes = Convert.FromBase64String(value.ToString());
+            var key = KeyStore.GetKey(keyName ?? KeyName);
 
             using (var aes = Aes.Create())
             {
                 aes.Key = Encoding.Unicode.GetBytes(key);
-
-                byte[] iv = new byte[aes.BlockSize / 8];
-                byte[] cipherBytes = new byte[encodedJsonBytes.Length - iv.Length];
-
-                Array.Copy(encodedJsonBytes, iv, iv.Length);
-                Array.Copy(encodedJsonBytes, iv.Length, cipherBytes, 0, cipherBytes.Length);
-
                 aes.IV = iv;
                 aes.Mode = CipherMode.CBC;
 
                 var decrypter = aes.CreateDecryptor(aes.Key, aes.IV);
-                using (var ms = new MemoryStream(cipherBytes))
+                using (var ms = new MemoryStream(encryptedBytes))
                 {
                     using (var cs = new CryptoStream(ms, decrypter, CryptoStreamMode.Read))
                     using (var sr = new StreamReader(cs))
                     {
-                        return sr.ReadToEnd();
+                        var value = sr.ReadToEnd();
+                        return System.Text.Encoding.UTF8.GetBytes(value);
                     }
                 }
             }
         }
 
-        public object Encrypt(object value)
+        public override byte[] Encrypt(byte[] plainBytes, out byte[] iv)
         {
-            byte[] iv;
-            byte[] encryptedField;
-
             var key = KeyStore.GetKey(KeyName);
-            var valueToEncrypt = value.ToString();
 
             using (var aes = Aes.Create())
             {
@@ -69,24 +56,15 @@ namespace Couchbase.Extensions.Encryption.Providers
                 using (var ms = new MemoryStream())
                 {
                     using (var cs = new CryptoStream(ms, encrypter, CryptoStreamMode.Write))
-                    using (var sw = new StreamWriter(cs))
                     {
-                        sw.Write(valueToEncrypt);
+                        cs.Write(plainBytes, 0, plainBytes.Length);
                     }
-                    encryptedField = ms.ToArray();
+                    return ms.ToArray();
                 }
             }
-
-            var combined = new byte[iv.Length + encryptedField.Length];
-            Array.Copy(iv, 0, combined, 0, iv.Length);
-            Array.Copy(encryptedField, 0, combined, iv.Length, encryptedField.Length);
-
-            return Convert.ToBase64String(combined);
         }
 
-        public string KeyName { get; set; }
-
-        public string Name { get; private set; }
+        public override bool RequiresAuthentication =>true;
     }
 }
 

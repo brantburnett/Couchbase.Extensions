@@ -18,11 +18,8 @@ namespace Couchbase.Extensions.Encryption.Utils
 
                 return true;
             }
-            else
-            {
-                attribute = null;
-                return false;
-            }
+            attribute = null;
+            return false;
 #endif
         }
     }
