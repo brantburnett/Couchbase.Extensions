@@ -1,24 +1,31 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 using Couchbase.Extensions.Encryption.Providers;
 using Couchbase.Extensions.Encryption.Stores;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Couchbase.Extensions.Encryption.UnitTests.Providers
 {
     public class AesCryptoProviderTests
     {
         private IKeystoreProvider _keystore;
+        private readonly ITestOutputHelper _output;
+        private byte[] _iv;
 
-        public AesCryptoProviderTests()
+
+        public AesCryptoProviderTests(ITestOutputHelper output)
         {
             using (var aes = Aes.Create())
             {
                 aes.GenerateKey();
+                _iv = aes.IV;
                 var key = Encoding.Unicode.GetString(aes.Key);
 
-                _keystore = new InsecureKeyStore("mypublickey", key);
+                _keystore = new InsecureKeyStore("mypublickey", "!mysecretkey#9^5");
             }
+            _output = output;
         }
 
         [Fact]
@@ -31,9 +38,10 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             };
 
             var someText = "The old grey goose jumped over the wrickety vase.";
+            var textBytes = Encoding.UTF8.GetBytes(someText);
+            var encryptedTest = aesCryptoProvider.Encrypt(textBytes, out _iv);
 
-            var encryptedTest = aesCryptoProvider.Encrypt(someText);
-            Assert.NotEqual(encryptedTest, someText);
+            Assert.NotEqual(encryptedTest, textBytes);
         }
 
         [Fact]
@@ -46,12 +54,84 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             };
 
             var someText = "The old grey goose jumped over the wrickety vase.";
+            var textBytes = Encoding.UTF8.GetBytes(someText);
+            var encryptedTest = aesCryptoProvider.Encrypt(textBytes, out _iv);
 
-            var encryptedTest = aesCryptoProvider.Encrypt(someText);
-            Assert.NotEqual(encryptedTest, someText);
+            Assert.NotEqual(encryptedTest, textBytes);
 
-            var decryptedText = aesCryptoProvider.Decrypt(encryptedTest, "mypublickey");
-            Assert.Equal(decryptedText, someText);
+            var decryptedText = aesCryptoProvider.Decrypt(encryptedTest, _iv, "mypublickey");
+            Assert.Equal(decryptedText, textBytes);
+        }
+
+
+        [Fact]
+        public void Test_Authenticate()
+        {
+            var aesCryptoProvider = new AesCryptoProvider
+            {
+                KeyStore = _keystore,
+                KeyName = "mypublickey"
+            };
+
+            var someText = "The old grey goose jumped over the wrickety gate.";
+            var textBytes = Encoding.UTF8.GetBytes(someText);
+            var encryptedTest = aesCryptoProvider.Encrypt(textBytes, out _iv);
+
+            Assert.NotEqual(encryptedTest, textBytes);
+
+            var hash1 = aesCryptoProvider.GetSignature(encryptedTest, "secret");
+
+            var decryptedText = aesCryptoProvider.Decrypt(encryptedTest, _iv, "mypublickey");
+            Assert.Equal(decryptedText, textBytes);
+
+            var hash2 = aesCryptoProvider.GetSignature(encryptedTest, "secret");
+
+            Assert.Equal(hash1, hash2);
+        }
+
+        [Fact]
+        public void Test_Encrypt2()
+        {
+            var aesCryptoProvider = new AesCryptoProvider
+            {
+                KeyStore = _keystore,
+                KeyName = "mypublickey"
+            };
+
+            var message = "The old grey goose jumped over the wrickety gate.";
+            var utf8Message = System.Text.Encoding.UTF8.GetBytes(message);
+
+            byte[] iv;
+            var encryptedBytes = aesCryptoProvider.Encrypt(utf8Message, out iv);
+            var base64message = Convert.ToBase64String(encryptedBytes);
+
+        }
+
+        [Fact]
+        public void Test_Decrypt2()
+        {
+            var aesCryptoProvider = new AesCryptoProvider
+            {
+                KeyStore = _keystore,
+                KeyName = "mypublickey"
+            };
+
+            var message = "The old grey goose jumped over the wrickety gate.";
+            var utf8Message = System.Text.Encoding.UTF8.GetBytes(message);
+
+            byte[] iv;
+            var encryptedBytes = aesCryptoProvider.Encrypt(utf8Message, out iv);
+            var base64message = Convert.ToBase64String(encryptedBytes);
+
+            _output.WriteLine(base64message);
+            _output.WriteLine(Convert.ToBase64String(iv));
+
+            var base64MessageBytes = Convert.FromBase64String(base64message);
+            var decrypted = aesCryptoProvider.Decrypt(base64MessageBytes, iv);
+
+            Assert.Equal(message, System.Text.Encoding.UTF8.GetString(decrypted));
+
+            _output.WriteLine(Convert.ToBase64String(aesCryptoProvider.GetSignature(encryptedBytes, "myauthpassword")));
         }
     }
 }

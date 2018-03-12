@@ -140,9 +140,12 @@ namespace Couchbase.Extensions.Encryption.UnitTests
                 var cryptoProviders = new Dictionary<string, ICryptoProvider>
                 {
                     {
-                        "AES-256", new AesCryptoProvider(new InsecureKeyStore("publickey", key))
+                        "AES-256-HMAC-SHA256", new AesCryptoProvider(new InsecureKeyStore(
+                            new KeyValuePair<string, string>("publickey", key),
+                            new KeyValuePair<string, string>("mysecret", "myauthpassword")))
                         {
-                            KeyName = "publickey"
+                            KeyName = "publickey",
+                            PrivateKeyName = "myauthpassword"
                         }
                     }
                 };
@@ -156,14 +159,14 @@ namespace Couchbase.Extensions.Encryption.UnitTests
 
         public class Poco
         {
-            [EncryptedField(Provider = "AES-256")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public string Bar { get; set; }
             public int Foo { get; set; }
         }
 
         public class Poco1
         {
-            [EncryptedField(Provider = "AES-256")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public int Foo { get; set; }
         }
 
@@ -175,7 +178,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
 
         public class PocoWithChildObject
         {
-            [EncryptedField(Provider = "AES-256")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public ChildObject Foo { get; set; }
         }
 
