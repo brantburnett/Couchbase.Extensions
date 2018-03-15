@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Couchbase.Configuration.Client;
+using Microsoft.Extensions.Configuration;
 
 namespace Couchbase.Extensions.DependencyInjection.IntegrationTests
 {
