@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Couchbase.Extensions.Encryption.Providers;
 using Couchbase.Extensions.Encryption.Stores;
+using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,7 +24,8 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
                 _iv = aes.IV;
                 var key = Encoding.Unicode.GetString(aes.Key);
 
-                _keystore = new InsecureKeyStore("mypublickey", "!mysecretkey#9^5");
+                _keystore = new InsecureKeyStore("mypublickey", "!mysecretkey#9^5usdk39d&dlf)03sL");
+                _keystore.StoreKey("myauthsecret", "myauthpassword");
             }
             _output = output;
         }
@@ -70,7 +72,8 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             var aesCryptoProvider = new AesCryptoProvider
             {
                 KeyStore = _keystore,
-                KeyName = "mypublickey"
+                KeyName = "mypublickey",
+                PrivateKeyName = "myauthsecret"
             };
 
             var someText = "The old grey goose jumped over the wrickety gate.";
@@ -79,12 +82,12 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
 
             Assert.NotEqual(encryptedTest, textBytes);
 
-            var hash1 = aesCryptoProvider.GetSignature(encryptedTest, "secret");
+            var hash1 = aesCryptoProvider.GetSignature(encryptedTest);
 
             var decryptedText = aesCryptoProvider.Decrypt(encryptedTest, _iv, "mypublickey");
             Assert.Equal(decryptedText, textBytes);
 
-            var hash2 = aesCryptoProvider.GetSignature(encryptedTest, "secret");
+            var hash2 = aesCryptoProvider.GetSignature(encryptedTest);
 
             Assert.Equal(hash1, hash2);
         }
@@ -113,7 +116,8 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             var aesCryptoProvider = new AesCryptoProvider
             {
                 KeyStore = _keystore,
-                KeyName = "mypublickey"
+                KeyName = "mypublickey",
+                PrivateKeyName = "myauthsecret"
             };
 
             var message = "The old grey goose jumped over the wrickety gate.";
@@ -124,14 +128,15 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             var base64message = Convert.ToBase64String(encryptedBytes);
 
             _output.WriteLine(base64message);
-            _output.WriteLine(Convert.ToBase64String(iv));
+            _output.WriteLine("iv: " + Convert.ToBase64String(iv));
 
             var base64MessageBytes = Convert.FromBase64String(base64message);
             var decrypted = aesCryptoProvider.Decrypt(base64MessageBytes, iv);
 
             Assert.Equal(message, System.Text.Encoding.UTF8.GetString(decrypted));
 
-            _output.WriteLine(Convert.ToBase64String(aesCryptoProvider.GetSignature(encryptedBytes, "myauthpassword")));
+            _output.WriteLine("authkey: " + Convert.ToBase64String(Encoding.UTF8.GetBytes(_keystore.GetKey("myauthsecret"))));
+            _output.WriteLine("sig: " + Convert.ToBase64String(aesCryptoProvider.GetSignature(encryptedBytes)));
         }
     }
 }

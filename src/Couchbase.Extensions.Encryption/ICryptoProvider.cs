@@ -9,7 +9,7 @@ namespace Couchbase.Extensions.Encryption
 
         byte[] Encrypt(byte[] plainBytes, out byte[] iv);
 
-        byte[] GetSignature(byte[] cipherBytes, string password);
+        byte[] GetSignature(byte[] cipherBytes);
 
         string Name { get; }
 

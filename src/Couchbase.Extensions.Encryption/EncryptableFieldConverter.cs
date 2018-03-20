@@ -34,7 +34,7 @@ namespace Couchbase.Extensions.Encryption
             byte[] signatureBytes = null;
             if (cryptoProvider.RequiresAuthentication)
             {
-                signatureBytes = cryptoProvider.GetSignature(cipherText, cryptoProvider.PrivateKeyName);
+                signatureBytes = cryptoProvider.GetSignature(cipherText);
             }
 
             var token = new JObject(
@@ -77,7 +77,7 @@ namespace Couchbase.Extensions.Encryption
             if (signature != null)
             {
                 if (signature.Value<string>() != Convert.ToBase64String(
-                        cryptoProvider.GetSignature(cipherBytes, cryptoProvider.PrivateKeyName)))
+                        cryptoProvider.GetSignature(cipherBytes)))
                 {
                     throw new AuthenticationException("signatures do not match!");
                 }
