@@ -13,17 +13,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
         [Fact]
         public void Test_Serialize()
         {
-            var providers = new Dictionary<string, ICryptoProvider>
-            {
-                {"AES-256-HMAC-SHA256", new AesCryptoProvider(new InsecureKeyStore("thekeyname","!mysecretkey#9^5"))
-                {
-                    KeyName = "thekeyname" ,
-                    PrivateKeyName = "123teuwoeiwkwkey"
-                }}
-            };
-            var serializer = new EncryptedFieldSerializer(
-                new JsonSerializerSettings {ContractResolver = new FieldEncryptorContractResolver(providers)},
-                new JsonSerializerSettings {ContractResolver = new FieldEncryptorContractResolver(providers)});
+            var serializer = GetFieldSerializer();
 
             var poco = new Poco
             {
@@ -38,17 +28,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
         [Fact]
         public void When_Cipher_Is_Modified_HMAC_Throws_AuthException()
         {
-            var providers = new Dictionary<string, ICryptoProvider>
-            {
-                {"AES-256-HMAC-SHA256", new AesCryptoProvider(new InsecureKeyStore("thekeyname","!mysecretkey#9^5"))
-                {
-                    KeyName = "thekeyname" ,
-                    PrivateKeyName = "123teuwoeiwkwkey"
-                }}
-            };
-            var serializer = new EncryptedFieldSerializer(
-                new JsonSerializerSettings { ContractResolver = new FieldEncryptorContractResolver(providers) },
-                new JsonSerializerSettings { ContractResolver = new FieldEncryptorContractResolver(providers) });
+            var serializer = GetFieldSerializer();
 
             var poco = new Poco
             {
@@ -65,6 +45,23 @@ namespace Couchbase.Extensions.Encryption.UnitTests
         {
             [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public string StringField { get; set; }
+        }
+
+        public EncryptedFieldSerializer GetFieldSerializer()
+        {
+            var providers = new Dictionary<string, ICryptoProvider>
+            {
+                {"AES-256-HMAC-SHA256", new AesCryptoProvider(new InsecureKeyStore(
+                    new KeyValuePair<string, string>("publickey", "!mysecretkey#9^5usdk39d&dlf)03sL"),
+                    new KeyValuePair<string, string>("myauthsecret", "mysecret")))
+                {
+                    KeyName = "publickey",
+                    PrivateKeyName = "myauthsecret"
+                }}
+            };
+            return new EncryptedFieldSerializer(
+                new JsonSerializerSettings { ContractResolver = new FieldEncryptorContractResolver(providers) },
+                new JsonSerializerSettings { ContractResolver = new FieldEncryptorContractResolver(providers) });
         }
     }
 }

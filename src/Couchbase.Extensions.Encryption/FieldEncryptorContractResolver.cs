@@ -13,7 +13,7 @@ namespace Couchbase.Extensions.Encryption
         public FieldEncryptorContractResolver(Dictionary<string, ICryptoProvider> cryptoProviders)
         {
             CryptoProviders = cryptoProviders;
-            EncryptedFieldPrefix = "__encrypt_";
+            EncryptedFieldPrefix = "__crypt_";
         }
 
         public FieldEncryptorContractResolver(Dictionary<string, ICryptoProvider> cryptoProviders, string encryptedFieldPrefix)

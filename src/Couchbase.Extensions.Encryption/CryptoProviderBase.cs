@@ -10,8 +10,9 @@ namespace Couchbase.Extensions.Encryption
 
         public abstract byte[] Encrypt(byte[] plainBytes, out byte[] iv);
 
-        public byte[] GetSignature(byte[] cipherBytes, string password)
+        public byte[] GetSignature(byte[] cipherBytes)
         {
+            var password = KeyStore.GetKey(PrivateKeyName);
             var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
             using (var hmac = new HMACSHA256(passwordBytes))
             {
