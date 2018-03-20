@@ -29,7 +29,6 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
             {
                 cluster.Authenticate("Administrator", "password");
                 var bucket = cluster.OpenBucket();
-
                 var poco = new Poco
                 {
                     Bar = "Bar",
@@ -74,13 +73,13 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
                     cluster.Authenticate("Administrator", "password");
                     var bucket = cluster.OpenBucket();
 
-                   /* var poco = new Poco2
+                    var poco = new Poco2
                     {
                         Message = "The old grey goose jumped over the wrickety gate."
                     };
                     var result = bucket.Upsert("thepoco", poco);
 
-                    Assert.True(result.Success);*/
+                    Assert.True(result.Success);
 
                     var get = bucket.Get<Poco2>("thepoco");
                     Assert.True(get.Success);
@@ -96,16 +95,16 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
 
         public class Poco
         {
-            [EncryptedField(Provider = "AESCryptoProvider")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public string Bar { get; set; }
 
-            [EncryptedField(Provider = "AESCryptoProvider")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public int Foo { get; set; }
 
-            [EncryptedField(Provider = "AESCryptoProvider")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public List<int> Baz { get; set; }
 
-            [EncryptedField(Provider = "AESCryptoProvider")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public PocoMoco ChildObject { get; set; }
 
             public string Fizz { get; set; }

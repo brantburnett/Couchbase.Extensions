@@ -3,7 +3,7 @@
     "Username": "Administrator",
     "Password" : "password",
     "Servers": [
-      "http://localhost:8091"
+      "http://localhost:8091/"
     ],
     "Buckets": [
       {
