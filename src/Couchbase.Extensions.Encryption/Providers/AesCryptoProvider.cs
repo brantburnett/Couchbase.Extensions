@@ -23,7 +23,7 @@ namespace Couchbase.Extensions.Encryption.Providers
 
             using (var aes = Aes.Create())
             {
-                aes.Key = Encoding.Unicode.GetBytes(key);
+                aes.Key = Encoding.UTF8.GetBytes(key);
                 aes.IV = iv;
                 aes.Mode = CipherMode.CBC;
 
@@ -46,7 +46,7 @@ namespace Couchbase.Extensions.Encryption.Providers
 
             using (var aes = Aes.Create())
             {
-                aes.Key = Encoding.Unicode.GetBytes(key);
+                aes.Key = Encoding.UTF8.GetBytes(key);
                 aes.GenerateIV();
                 iv = aes.IV;
 
