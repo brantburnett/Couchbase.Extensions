@@ -19,16 +19,13 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
                 aes.GenerateKey();
                 var key = Encoding.Unicode.GetString(aes.Key);
 
-                var config = new ClientConfiguration
+                var config = new ClientConfiguration(TestConfiguration.GetConfiguration());
+                config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore(
+                    new KeyValuePair<string, string>("publickey", key),
+                    new KeyValuePair<string, string>("mysecret", "myauthpassword")))
                 {
-                    Servers = new List<Uri>
-                    {
-                        new Uri("http://10.142.171.101:8091/")
-                    }
-                };
-                config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore("mypublickey", key))
-                {
-                    KeyName = "mypublickey"
+                    KeyName = "publickey",
+                    PrivateKeyName = "myauthpassword"
                 });
 
                 using (var cluster = new Cluster(config))
@@ -64,16 +61,16 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
 
         public class Poco
         {
-            [EncryptedField(Provider = "AESCryptoProvider")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public string Bar { get; set; }
 
-            [EncryptedField(Provider = "AESCryptoProvider")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public int Foo { get; set; }
 
-            [EncryptedField(Provider = "AESCryptoProvider")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public List<int> Baz { get; set; }
 
-            [EncryptedField(Provider = "AESCryptoProvider")]
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
             public PocoMoco ChildObject { get; set; }
 
             public string Fizz { get; set; }
