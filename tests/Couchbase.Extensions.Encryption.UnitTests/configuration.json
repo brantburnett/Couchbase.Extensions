@@ -1,0 +1,14 @@
+﻿{
+  "Couchbase": {
+    "Username": "Administrator",
+    "Password" : "password",
+    "Servers": [
+      "http://10.142.171.101:8091"
+    ],
+    "Buckets": [
+      {
+        "Name": "travel-sample"
+      }
+    ]
+  }
+}

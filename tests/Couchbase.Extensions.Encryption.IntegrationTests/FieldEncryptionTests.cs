@@ -14,53 +14,85 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
         [Fact]
         public void Test_Encrypt_String()
         {
-            using (var aes = Aes.Create())
-            {
-                aes.GenerateKey();
-                var key = Encoding.Unicode.GetString(aes.Key);
+            var key = "!mysecretkey#9^5usdk39d&dlf)03sL";
 
-                var config = new ClientConfiguration
+            var config = new ClientConfiguration(TestConfiguration.GetConfiguration());
+            config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore(
+                new KeyValuePair<string, string>("publickey", key),
+                new KeyValuePair<string, string>("mysecret", "myauthpassword")))
+            {
+                KeyName = "publickey",
+                PrivateKeyName = "mysecret"
+            });
+
+            using (var cluster = new Cluster(config))
+            {
+                cluster.Authenticate("Administrator", "password");
+                var bucket = cluster.OpenBucket();
+
+                var poco = new Poco
                 {
-                    Servers = new List<Uri>
+                    Bar = "Bar",
+                    Foo = 90,
+                    ChildObject = new PocoMoco
                     {
-                        new Uri("http://10.142.171.101:8091/")
-                    }
+                        Bar = "Bar2"
+                    },
+                    Fizz = "fizz",
+                    Baz = new List<int> {3, 4}
                 };
-                config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore("mypublickey", key))
-                {
-                    KeyName = "mypublickey"
-                });
+
+                var result = bucket.Upsert("thepoco", poco);
+
+                Assert.True(result.Success);
+
+                var get = bucket.Get<Poco>("thepoco");
+                Assert.True(get.Success);
+                Assert.Equal("Bar", get.Value.Bar);
+                Assert.Equal(90, get.Value.Foo);
+                Assert.Equal(new List<int> {3, 4}, get.Value.Baz);
+                Assert.Equal("Bar2", get.Value.ChildObject.Bar);
+            }
+        }
+
+        [Fact]
+        public void Test_Encrypt2_String()
+        {
+                var key = "!mysecretkey#9^5usdk39d&dlf)03sL";
+
+                var config = new ClientConfiguration(TestConfiguration.GetConfiguration());
+            config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore(
+                new KeyValuePair<string, string>("mypublickey", key),
+                new KeyValuePair<string, string>("myauthsecret", "myauthpassword")))
+            {
+                KeyName = "mypublickey",
+                PrivateKeyName = "myauthsecret"
+            });
 
                 using (var cluster = new Cluster(config))
                 {
                     cluster.Authenticate("Administrator", "password");
                     var bucket = cluster.OpenBucket();
 
-                    var poco = new Poco
+                   /* var poco = new Poco2
                     {
-                        Bar = "Bar",
-                        Foo = 90,
-                        ChildObject = new PocoMoco
-                        {
-                            Bar = "Bar2"
-                        },
-                        Fizz = "fizz",
-                        Baz = new List<int>{3,4}
+                        Message = "The old grey goose jumped over the wrickety gate."
                     };
-
                     var result = bucket.Upsert("thepoco", poco);
 
-                    Assert.True(result.Success);
+                    Assert.True(result.Success);*/
 
-                    var get = bucket.Get<Poco>("thepoco");
+                    var get = bucket.Get<Poco2>("thepoco");
                     Assert.True(get.Success);
-                    Assert.Equal("Bar", get.Value.Bar);
-                    Assert.Equal(90, get.Value.Foo);
-                    Assert.Equal(new List<int> { 3, 4 }, get.Value.Baz);
-                    Assert.Equal("Bar2", get.Value.ChildObject.Bar);
-                }
             }
         }
+
+        public class Poco2
+        {
+            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            public string Message { get; set; }
+        }
+
 
         public class Poco
         {

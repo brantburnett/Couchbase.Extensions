@@ -62,7 +62,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
 
             var json = JsonConvert.SerializeObject(pocoPlain, settings);
 
-            Assert.Contains("__encrypt", json); ;
+            Assert.Contains("__crypt", json); ;
 
             var poco = JsonConvert.DeserializeObject<Poco>(json, settings);
             Assert.Equal("bar", poco.Bar);
@@ -76,7 +76,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
 
             var json = JsonConvert.SerializeObject(pocoPlain, settings);
 
-            Assert.Contains("__encrypt", json); ;
+            Assert.Contains("__crypt", json); ;
 
             var poco = JsonConvert.DeserializeObject<Poco1>(json, settings);
             Assert.Equal(2, poco.Foo);
@@ -106,7 +106,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
 
             var json = JsonConvert.SerializeObject(pocoPlain, settings);
 
-            Assert.Contains("__encrypt", json);
+            Assert.Contains("__crypt", json);
 
             var poco = JsonConvert.DeserializeObject<PocoWithChildObject>(json, settings);
             Assert.Equal(new ChildObject
@@ -124,7 +124,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
 
             var json = JsonConvert.SerializeObject(pocoPlain, settings);
 
-            Assert.Contains("__encrypt", json);
+            Assert.Contains("__crypt", json);
 
             var poco = JsonConvert.DeserializeObject<Poco2>(json, settings);
             Assert.Null(poco.Foo);
@@ -132,29 +132,23 @@ namespace Couchbase.Extensions.Encryption.UnitTests
 
         private JsonSerializerSettings GetSettings()
         {
-            using (var aes = Aes.Create())
+            var cryptoProviders = new Dictionary<string, ICryptoProvider>
             {
-                aes.GenerateKey();
-                var key = Encoding.Unicode.GetString(aes.Key);
-
-                var cryptoProviders = new Dictionary<string, ICryptoProvider>
                 {
+                    "AES-256-HMAC-SHA256", new AesCryptoProvider(new InsecureKeyStore(
+                        new KeyValuePair<string, string>("publickey", "!mysecretkey#9^5usdk39d&dlf)03sL"),
+                        new KeyValuePair<string, string>("myauthsecret", "mysecret")))
                     {
-                        "AES-256-HMAC-SHA256", new AesCryptoProvider(new InsecureKeyStore(
-                            new KeyValuePair<string, string>("publickey", key),
-                            new KeyValuePair<string, string>("mysecret", "myauthpassword")))
-                        {
-                            KeyName = "publickey",
-                            PrivateKeyName = "myauthpassword"
-                        }
+                        KeyName = "publickey",
+                        PrivateKeyName = "myauthsecret"
                     }
-                };
+                }
+            };
 
-                return new JsonSerializerSettings
-                {
-                    ContractResolver = new FieldEncryptorContractResolver(cryptoProviders)
-                };
-            }
+            return new JsonSerializerSettings
+            {
+                ContractResolver = new FieldEncryptorContractResolver(cryptoProviders)
+            };
         }
 
         public class Poco
