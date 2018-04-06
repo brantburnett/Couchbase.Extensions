@@ -32,12 +32,8 @@ namespace TestApp
             // Register Couchbase with configuration section
             services
                 .AddCouchbase(Configuration.GetSection("Couchbase"))
+                .AddCouchbaseDnsDiscovery()
                 .AddCouchbaseBucket<ITravelSampleBucketProvider>("travel-sample");
-
-            if (Environment.IsProduction())
-            {
-                services.AddCouchbaseDnsDiscovery("_couchbase._tcp.services.local");
-            }
 
             services.AddMvc();
         }

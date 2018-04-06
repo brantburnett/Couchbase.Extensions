@@ -23,6 +23,12 @@ namespace Couchbase.Extensions.DnsDiscovery.UnitTests.Internal
         private static readonly Uri ServerRecord2ExpectedUrl =
             new Uri("http://couchbaseserver2.services.local:8091/pools");
 
+        private static readonly Uri ServerRecord3ExpectedUrl =
+            new Uri("http://couchbaseserver3.services.local:8091/pools");
+
+        private static readonly Uri ServerRecord4ExpectedUrl =
+            new Uri("http://couchbaseserver4.services.local:8091/pools");
+
         private static readonly SrvRecord SrvRecord1Priority10 = new SrvRecord(
             new ResourceRecordInfo(RecordName, ResourceRecordType.SRV, QueryClass.IN, 60, 0),
             10, 10, 8091, new DnsName("couchbaseserver1.services.local."));
@@ -524,6 +530,283 @@ namespace Couchbase.Extensions.DnsDiscovery.UnitTests.Internal
             Assert.Equal(2, clientDefinition.Servers.Count);
             Assert.Contains(ServerRecord1ExpectedUrl, clientDefinition.Servers);
             Assert.Contains(ServerRecord2ExpectedUrl, clientDefinition.Servers);
+        }
+
+        [Fact]
+        public void ApplyNoRecordName_CouchbaseDnsSrvFound_IgnoresPriority()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(FullRecordName))
+                .ReturnsAsync(new List<SrvRecord>
+                {
+                    SrvRecord1Priority10,
+                    SrvRecord2Priority10,
+                    SrvRecord3Priority20,
+                    SrvRecord4Priority20
+                });
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                Servers = new List<Uri>
+                {
+                    new Uri("couchbase://services.local/")
+                }
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal(4, clientDefinition.Servers.Count);
+            Assert.Contains(ServerRecord1ExpectedUrl, clientDefinition.Servers);
+            Assert.Contains(ServerRecord2ExpectedUrl, clientDefinition.Servers);
+            Assert.Contains(ServerRecord3ExpectedUrl, clientDefinition.Servers);
+            Assert.Contains(ServerRecord4ExpectedUrl, clientDefinition.Servers);
+        }
+
+        #endregion
+
+        #region Apply without recordName using ConnectionString
+
+        [Fact]
+        public void ApplyNoRecordNameWithConnectionString_HttpOnly_NoDnsLookup()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(It.IsAny<string>()))
+                .ReturnsAsync(new List<SrvRecord>());
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                ConnectionString = "http://shouldstay/"
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal("http://shouldstay/", clientDefinition.ConnectionString);
+            Assert.Null(clientDefinition.Servers);
+
+            lookupClient
+                .Verify(m => m.QuerySrvAsync(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public void ApplyNoRecordNameWithConnectionString_CouchbaseWithPort_NoDnsLookup()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(It.IsAny<string>()))
+                .ReturnsAsync(new List<SrvRecord>());
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                ConnectionString = "couchbase://server:1000/"
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal("couchbase://server:1000/", clientDefinition.ConnectionString);
+            Assert.Null(clientDefinition.Servers);
+
+            lookupClient
+                .Verify(m => m.QuerySrvAsync(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public void ApplyNoRecordNameWithConnectionString_MultipleEntriesWithComma_NoDnsLookup()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(It.IsAny<string>()))
+                .ReturnsAsync(new List<SrvRecord>());
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                ConnectionString = "couchbase://server,server2/"
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal("couchbase://server,server2/", clientDefinition.ConnectionString);
+            Assert.Null(clientDefinition.Servers);
+
+            lookupClient
+                .Verify(m => m.QuerySrvAsync(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public void ApplyNoRecordNameWithConnectionString_MultipleEntriesWithSemicolon_NoDnsLookup()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(It.IsAny<string>()))
+                .ReturnsAsync(new List<SrvRecord>());
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                ConnectionString = "couchbase://server;server2/"
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal("couchbase://server;server2/", clientDefinition.ConnectionString);
+            Assert.Null(clientDefinition.Servers);
+
+            lookupClient
+                .Verify(m => m.QuerySrvAsync(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public void ApplyNoRecordNameWithConnectionString_CouchbaseNoDnsSrvFound_Unmodified()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(FullRecordName))
+                .ReturnsAsync(new List<SrvRecord>());
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                ConnectionString = "couchbase://services.local/"
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal("couchbase://services.local/", clientDefinition.ConnectionString);
+            Assert.Null(clientDefinition.Servers);
+
+            lookupClient
+                .Verify(m => m.QuerySrvAsync(FullRecordName), Times.Once);
+        }
+
+        [Theory]
+        [InlineData("couchbase")]
+        [InlineData("couchbases")]
+        public void ApplyNoRecordNameWithConnectionString_CouchbaseDnsSrvFound_Replaces(string scheme)
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync($"_{scheme}._tcp.services.local"))
+                .ReturnsAsync(new List<SrvRecord>
+                {
+                    SrvRecord1Priority10,
+                    SrvRecord2Priority10
+                });
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                ConnectionString = $"{scheme}://services.local/additionalPath?queryParam=5"
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal($"{scheme}://couchbaseserver1.services.local:8091,couchbaseserver2.services.local:8091/additionalPath?queryParam=5",
+                clientDefinition.ConnectionString);
+            Assert.Null(clientDefinition.Servers);
+        }
+
+        [Fact]
+        public void ApplyNoRecordNameWithConnectionString_CouchbaseDnsSrvFound_IgnoresPriority()
+        {
+            // Arrange
+
+            var lookupClient = new Mock<ILookupClientAdapter>();
+            lookupClient
+                .Setup(m => m.QuerySrvAsync(FullRecordName))
+                .ReturnsAsync(new List<SrvRecord>
+                {
+                    SrvRecord1Priority10,
+                    SrvRecord2Priority10,
+                    SrvRecord3Priority20,
+                    SrvRecord4Priority20
+                });
+
+            var logger = new Mock<ILogger<CouchbaseDnsLookup>>();
+
+            var clientDefinition = new CouchbaseClientDefinition
+            {
+                ConnectionString = "couchbase://services.local"
+            };
+
+            var lookup = new CouchbaseDnsLookup(lookupClient.Object, logger.Object);
+
+            // Act
+
+            lookup.Apply(clientDefinition);
+
+            // Assert
+
+            Assert.Equal("couchbase://couchbaseserver1.services.local:8091,couchbaseserver2.services.local:8091,couchbaseserver3.services.local:8091,couchbaseserver4.services.local:8091/",
+                clientDefinition.ConnectionString);
+            Assert.Null(clientDefinition.Servers);
         }
 
         #endregion

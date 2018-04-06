@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Couchbase.Configuration.Client;
@@ -37,24 +38,14 @@ namespace Couchbase.Extensions.DnsDiscovery.Internal
                 throw new ArgumentNullException(nameof(clientDefinition));
             }
 
-            if (clientDefinition.Servers.Count != 1)
+            if (!string.IsNullOrEmpty(clientDefinition.ConnectionString))
             {
-                // Must have a single host
-                return;
+                ApplyFromConnectionString(clientDefinition);
             }
-
-            var recordName = TestForSrvRecordName(clientDefinition.Servers[0]);
-            if (recordName != null)
+            else
             {
-                var resolvedServers = Resolve(recordName);
-                if (resolvedServers != null)
-                {
-                    clientDefinition.Servers.Clear();
-                    clientDefinition.Servers.AddRange(resolvedServers);
-                }
+                ApplyFromServers(clientDefinition);
             }
-
-            // Leaves servers in place if no DNS SRV records match
         }
 
         public void Apply(CouchbaseClientDefinition clientDefinition, string recordName)
@@ -80,7 +71,7 @@ namespace Couchbase.Extensions.DnsDiscovery.Internal
 
             if (!recordName.StartsWith("_"))
             {
-                var serversPrepended = Resolve("_couchbase._tcp." + recordName);
+                var serversPrepended = Resolve("_couchbase._tcp." + recordName, false);
                 // Automatically prepend _couchbase._tcp to the recordName
                 if (serversPrepended != null)
                 {
@@ -91,14 +82,64 @@ namespace Couchbase.Extensions.DnsDiscovery.Internal
             }
 
             // Try the record name without prepending _couchbase._tcp (backwards compatibility)
-            var servers = Resolve(recordName);
+            var servers = Resolve(recordName, false);
             if (servers != null)
             {
                 clientDefinition.Servers.AddRange(servers);
             }
         }
 
-        private List<Uri> Resolve(string recordName)
+        private void ApplyFromConnectionString(CouchbaseClientDefinition clientDefinition)
+        {
+            Uri uri;
+            try
+            {
+                uri = new Uri(clientDefinition.ConnectionString);
+            }
+            catch (UriFormatException)
+            {
+                // We should only perform DNS SRV lookups on a connection string with a single server listed
+                // Any URI with more than one server (comma delimited) will fail to parse as a URI
+                // So just short circuit on UriFormatException
+                return;
+            }
+
+            var recordName = TestForSrvRecordName(uri);
+            if (recordName != null)
+            {
+                var resolvedServers = Resolve(recordName, true);
+                if (resolvedServers != null)
+                {
+                    clientDefinition.ConnectionString = ReplaceConnectionStringServers(uri, resolvedServers);
+                }
+            }
+
+            // Leaves servers in place if no DNS SRV records match
+        }
+
+        private void ApplyFromServers(CouchbaseClientDefinition clientDefinition)
+        {
+            if (clientDefinition.Servers.Count != 1)
+            {
+                // Must have a single host
+                return;
+            }
+
+            var recordName = TestForSrvRecordName(clientDefinition.Servers[0]);
+            if (recordName != null)
+            {
+                var resolvedServers = Resolve(recordName, true);
+                if (resolvedServers != null)
+                {
+                    clientDefinition.Servers.Clear();
+                    clientDefinition.Servers.AddRange(resolvedServers);
+                }
+            }
+
+            // Leaves servers in place if no DNS SRV records match
+        }
+
+        private List<Uri> Resolve(string recordName, bool ignorePriority)
         {
             if (recordName == null)
             {
@@ -135,10 +176,21 @@ namespace Couchbase.Extensions.DnsDiscovery.Internal
                     return null;
                 }
 
-                var result = new List<Uri>();
+                var serverQuery = servers.AsEnumerable();
 
-                var firstPriority = servers.First().Priority;
-                foreach (var server in servers.Where(p => p.Priority == firstPriority))
+                if (!ignorePriority)
+                {
+                    // The original version of this extension used the priority
+                    // However, Couchbase spec says that it should not
+                    // For bacwards compatibility, we continue to use it if the recordName is manually provided
+                    // But ignore in the new (and recommended) pattern of auto discovery from the configuration
+
+                    var firstPriority = servers.First().Priority;
+                    serverQuery = serverQuery.Where(p => p.Priority == firstPriority);
+                }
+
+                var result = new List<Uri>();
+                foreach (var server in serverQuery)
                 {
                     var uri = new Uri($"http://{FormatTargetDns(server.Target)}:{server.Port}/pools");
 
@@ -194,6 +246,32 @@ namespace Couchbase.Extensions.DnsDiscovery.Internal
             }
 
             return $"_{uri.Scheme}._tcp.{uri.Host}";
+        }
+
+        private static string ReplaceConnectionStringServers(Uri connectionString, IEnumerable<Uri> servers)
+        {
+            var builder = new StringBuilder(256);
+            builder.Append(connectionString.Scheme);
+            builder.Append("://");
+
+            var first = true;
+            foreach (var server in servers)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    builder.Append(',');
+                }
+
+                builder.AppendFormat("{0}:{1}", server.Host, server.Port);
+            }
+
+            builder.Append(connectionString.GetComponents(UriComponents.PathAndQuery, UriFormat.SafeUnescaped));
+
+            return builder.ToString();
         }
     }
 }
