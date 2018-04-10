@@ -32,7 +32,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             var rsaCryptoProvider = new RsaCryptoProvider
             {
                 KeyStore = _keystore,
-                KeyName = "publicKey",
+                PublicKeyName = "publicKey",
                 PrivateKey = "privateKey"
             };
 
@@ -48,7 +48,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             var rsaCryptoProvider = new RsaCryptoProvider
             {
                 KeyStore =_keystore,
-                KeyName = "publicKey",
+                PublicKeyName = "publicKey",
                 PrivateKey = "privateKey"
             };
 

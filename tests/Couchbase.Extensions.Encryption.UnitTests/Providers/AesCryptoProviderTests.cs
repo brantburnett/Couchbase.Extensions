@@ -36,7 +36,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             var aesCryptoProvider = new AesCryptoProvider
             {
                 KeyStore = _keystore,
-                KeyName = "mypublickey"
+                PublicKeyName = "mypublickey"
             };
 
             var someText = "The old grey goose jumped over the wrickety vase.";
@@ -52,7 +52,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             var aesCryptoProvider = new AesCryptoProvider
             {
                 KeyStore = _keystore,
-                KeyName = "mypublickey"
+                PublicKeyName = "mypublickey"
             };
 
             var someText = "The old grey goose jumped over the wrickety vase.";
@@ -72,8 +72,8 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             var aesCryptoProvider = new AesCryptoProvider
             {
                 KeyStore = _keystore,
-                KeyName = "mypublickey",
-                PrivateKeyName = "myauthsecret"
+                PublicKeyName = "mypublickey",
+                SigningKeyName = "myauthsecret"
             };
 
             var someText = "The old grey goose jumped over the wrickety gate.";
@@ -98,7 +98,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             var aesCryptoProvider = new AesCryptoProvider
             {
                 KeyStore = _keystore,
-                KeyName = "mypublickey"
+                PublicKeyName = "mypublickey"
             };
 
             var message = "The old grey goose jumped over the wrickety gate.";
@@ -116,8 +116,8 @@ namespace Couchbase.Extensions.Encryption.UnitTests.Providers
             var aesCryptoProvider = new AesCryptoProvider
             {
                 KeyStore = _keystore,
-                KeyName = "mypublickey",
-                PrivateKeyName = "myauthsecret"
+                PublicKeyName = "mypublickey",
+                SigningKeyName = "myauthsecret"
             };
 
             var message = "The old grey goose jumped over the wrickety gate.";

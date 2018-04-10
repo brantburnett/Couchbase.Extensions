@@ -139,8 +139,8 @@ namespace Couchbase.Extensions.Encryption.UnitTests
                         new KeyValuePair<string, string>("publickey", "!mysecretkey#9^5usdk39d&dlf)03sL"),
                         new KeyValuePair<string, string>("myauthsecret", "mysecret")))
                     {
-                        KeyName = "publickey",
-                        PrivateKeyName = "myauthsecret"
+                        PublicKeyName = "publickey",
+                        SigningKeyName = "myauthsecret"
                     }
                 }
             };

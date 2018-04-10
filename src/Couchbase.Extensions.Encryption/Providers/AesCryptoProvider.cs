@@ -13,13 +13,12 @@ namespace Couchbase.Extensions.Encryption.Providers
 
         public AesCryptoProvider()
         {
-            Name = "AES-256-HMAC-SHA256";
+            ProviderName = "AES-256-HMAC-SHA256";
         }
 
-        //value coming in should be Base64 decoded
         public override byte[] Decrypt(byte[] encryptedBytes, byte[] iv, string keyName = null)
         {
-            var key = KeyStore.GetKey(keyName ?? KeyName);
+            var key = KeyStore.GetKey(keyName ?? PublicKeyName);
 
             using (var aes = Aes.Create())
             {
@@ -42,7 +41,7 @@ namespace Couchbase.Extensions.Encryption.Providers
 
         public override byte[] Encrypt(byte[] plainBytes, out byte[] iv)
         {
-            var key = KeyStore.GetKey(KeyName);
+            var key = KeyStore.GetKey(PublicKeyName);
 
             using (var aes = Aes.Create())
             {

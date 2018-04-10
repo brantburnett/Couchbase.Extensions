@@ -10,7 +10,7 @@ namespace Couchbase.Extensions.Encryption
         {
             config.Serializer = () =>
             {
-                var providers = cryptoProviders.ToDictionary(cryptoProvider => cryptoProvider.Name);
+                var providers = cryptoProviders.ToDictionary(cryptoProvider => cryptoProvider.ProviderName);
                 return new EncryptedFieldSerializer(
                     new JsonSerializerSettings {ContractResolver = new FieldEncryptorContractResolver(providers)},
                     new JsonSerializerSettings {ContractResolver = new FieldEncryptorContractResolver(providers)});
