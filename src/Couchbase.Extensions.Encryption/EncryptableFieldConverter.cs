@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Security.Authentication;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace Couchbase.Extensions.Encryption
 {
@@ -14,6 +18,11 @@ namespace Couchbase.Extensions.Encryption
             TargetProperty = targetProperty;
             CryptoProviders = cryptoProviders;
             ProviderName = providerName;
+            SerializerSettings =
+                new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
         }
 
         public PropertyInfo TargetProperty { get; }
@@ -22,33 +31,57 @@ namespace Couchbase.Extensions.Encryption
 
         public string ProviderName { get; set; }
 
+        public JsonSerializerSettings SerializerSettings { get; set; }
+
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var rawJson = SerializeAsJson(value);
+            var rawJson = JsonConvert.SerializeObject(value, SerializerSettings);
             var cryptoProvider = CryptoProviders[ProviderName];
 
-            var rawBytes = System.Text.Encoding.UTF8.GetBytes(rawJson);
+            var rawBytes = Encoding.UTF8.GetBytes(rawJson);
             var cipherText = cryptoProvider.Encrypt(rawBytes, out var iv);
             var base64CipherText = Convert.ToBase64String(cipherText);
+
+            string base64Iv = null;
+            if (iv != null)
+            {
+                base64Iv = Convert.ToBase64String(iv);
+            }
 
             byte[] signatureBytes = null;
             if (cryptoProvider.RequiresAuthentication)
             {
-                signatureBytes = cryptoProvider.GetSignature(cipherText);
+                //sig = HMAC256(BASE64(kid + alg + iv + ciphertext))
+                // var sig = cryptoProvider.PublicKeyName + cryptoProvider.ProviderName +  base64Iv + base64CipherText;
+
+
+                var kidBytes = Encoding.UTF8.GetBytes(cryptoProvider.PublicKeyName);
+                var algBytes = Encoding.UTF8.GetBytes(cryptoProvider.ProviderName);
+                var buffer = new byte[kidBytes.Length + algBytes.Length + iv.Length + cipherText.Length];
+
+                Buffer.BlockCopy(kidBytes, 0, buffer, 0, kidBytes.Length);
+                Buffer.BlockCopy(algBytes, 0, buffer, kidBytes.Length, algBytes.Length);
+                Buffer.BlockCopy(iv, 0, buffer, kidBytes.Length + algBytes.Length, iv.Length);
+                Buffer.BlockCopy(cipherText, 0, buffer, kidBytes.Length + algBytes.Length + iv.Length, cipherText.Length);
+
+                //sign the entire buffer
+                //signatureBytes = cryptoProvider.GetSignature(Encoding.UTF8.GetBytes(sig));
+                signatureBytes = cryptoProvider.GetSignature(buffer);
             }
 
             var token = new JObject(
-                new JProperty("alg", cryptoProvider.Name),
-                new JProperty("kid", cryptoProvider.KeyName),
+                new JProperty("alg", cryptoProvider.ProviderName),
+                new JProperty("kid", cryptoProvider.PublicKeyName),
                 new JProperty("ciphertext", base64CipherText));
 
             if (signatureBytes != null)
             {
-                token.Add("sig", Convert.ToBase64String(signatureBytes));
+                var base64Sig = Convert.ToBase64String(signatureBytes);
+                token.Add("sig", base64Sig);
             }
-            if (iv != null)
+            if (iv != null && !string.IsNullOrWhiteSpace(base64Iv))
             {
-                token.Add("iv", Convert.ToBase64String(iv));
+                token.Add("iv", base64Iv);
             }
 
             token.WriteTo(writer);
@@ -74,54 +107,32 @@ namespace Couchbase.Extensions.Encryption
                 ivBytes = Convert.FromBase64String(iv.Value<string>());
             }
 
-            if (signature != null)
+            if (signature != null && ivBytes != null)
             {
-                if (signature.Value<string>() != Convert.ToBase64String(
-                        cryptoProvider.GetSignature(cipherBytes)))
+                //sig = BASE64(HMAC256(kid + alg + BASE64(iv) + BASE64(ciphertext)))
+                var kidBytes = Encoding.UTF8.GetBytes(kid.Value<string>());
+                var algBytes = Encoding.UTF8.GetBytes(alg.Value<string>());
+
+                var buffer = new byte[kidBytes.Length + algBytes.Length + ivBytes.Length + cipherBytes.Length];
+                Buffer.BlockCopy(kidBytes, 0, buffer, 0, kidBytes.Length);
+                Buffer.BlockCopy(algBytes, 0, buffer, kidBytes.Length, algBytes.Length);
+                Buffer.BlockCopy(ivBytes, 0, buffer, kidBytes.Length + algBytes.Length, ivBytes.Length);
+                Buffer.BlockCopy(cipherBytes, 0, buffer, kidBytes.Length + algBytes.Length+ ivBytes.Length, cipherBytes.Length);
+
+                var sig = cryptoProvider.GetSignature(buffer);
+                if (signature.Value<string>() != Convert.ToBase64String(sig))
                 {
                     throw new AuthenticationException("signatures do not match!");
                 }
             }
 
             var decryptedPayload = cryptoProvider.Decrypt(cipherBytes, ivBytes, kid.Value<string>());
-            return ConvertToType(System.Text.Encoding.UTF8.GetString(decryptedPayload));
+            return ConvertToType(Encoding.UTF8.GetString(decryptedPayload));
         }
 
         public override bool CanConvert(Type objectType)
         {
             return true;
-        }
-
-        private string SerializeAsJson(object value)
-        {
-            var typeCode = Type.GetTypeCode(TargetProperty.PropertyType);
-            switch (typeCode)
-            {
-                case TypeCode.Boolean:
-                case TypeCode.Byte:
-                case TypeCode.Char:
-                case TypeCode.DateTime:
-#if NET45
-                case TypeCode.DBNull:
-#endif
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Empty:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.Object:
-                case TypeCode.SByte:
-                case TypeCode.Single:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                    return JsonConvert.SerializeObject(value);
-                case TypeCode.String:
-                    return value.ToString();
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
 
         private object ConvertToType(string decryptedValue)
@@ -130,43 +141,43 @@ namespace Couchbase.Extensions.Encryption
             switch (typeCode)
             {
                 case TypeCode.Boolean:
-                    return Convert.ToBoolean(decryptedValue);
+                    return JsonConvert.DeserializeObject<bool>(decryptedValue);
                 case TypeCode.Byte:
-                    return Convert.ToByte(decryptedValue);
+                    return JsonConvert.DeserializeObject<byte>(decryptedValue);
                 case TypeCode.Char:
-                    return Convert.ToChar(decryptedValue);
+                    return JsonConvert.DeserializeObject<char>(decryptedValue);
                 case TypeCode.DateTime:
-                    return Convert.ToDateTime(decryptedValue);
+                    return JsonConvert.DeserializeObject<DateTime>(decryptedValue);
 #if NET45
                 case TypeCode.DBNull:
                     return null;
 #endif
                 case TypeCode.Decimal:
-                    return Convert.ToDecimal(decryptedValue);
+                    return JsonConvert.DeserializeObject<Decimal>(decryptedValue);
                 case TypeCode.Double:
-                    return Convert.ToDouble(decryptedValue);
+                    return JsonConvert.DeserializeObject<double>(decryptedValue);
                 case TypeCode.Empty:
                     return null;
                 case TypeCode.Int16:
-                    return Convert.ToInt16(decryptedValue);
+                    return JsonConvert.DeserializeObject<short>(decryptedValue);
                 case TypeCode.Int32:
-                    return Convert.ToInt32(decryptedValue);
+                    return JsonConvert.DeserializeObject<int>(decryptedValue);
                 case TypeCode.Int64:
-                    return Convert.ToInt64(decryptedValue);
+                    return JsonConvert.DeserializeObject<long>(decryptedValue);
                 case TypeCode.Object:
                     return JsonConvert.DeserializeObject(decryptedValue, TargetProperty.PropertyType);
                 case TypeCode.SByte:
-                    return Convert.ToSByte(decryptedValue);
+                    return JsonConvert.DeserializeObject<sbyte>(decryptedValue);
                 case TypeCode.Single:
-                    return Convert.ToSingle(decryptedValue);
+                    return JsonConvert.DeserializeObject<float>(decryptedValue);
                 case TypeCode.String:
-                    return decryptedValue;
+                    return JsonConvert.DeserializeObject<string>(decryptedValue);
                 case TypeCode.UInt16:
-                    return Convert.ToUInt16(decryptedValue);
+                    return JsonConvert.DeserializeObject<ushort>(decryptedValue);
                 case TypeCode.UInt32:
-                    return Convert.ToUInt32(decryptedValue);
+                    return JsonConvert.DeserializeObject<uint>(decryptedValue);
                 case TypeCode.UInt64:
-                    return Convert.ToUInt64(decryptedValue);
+                    return JsonConvert.DeserializeObject<ulong>(decryptedValue);
             }
             return null;
         }

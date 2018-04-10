@@ -10,9 +10,9 @@ namespace Couchbase.Extensions.Encryption
 
         public abstract byte[] Encrypt(byte[] plainBytes, out byte[] iv);
 
-        public byte[] GetSignature(byte[] cipherBytes)
+        public virtual byte[] GetSignature(byte[] cipherBytes)
         {
-            var password = KeyStore.GetKey(PrivateKeyName);
+            var password = KeyStore.GetKey(SigningKeyName);
             var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
             using (var hmac = new HMACSHA256(passwordBytes))
             {
@@ -20,9 +20,10 @@ namespace Couchbase.Extensions.Encryption
             }
         }
 
-        public string Name { get; protected set; }
-        public string KeyName { get; set; }
+        public string ProviderName { get; protected set; }
+        public string PublicKeyName { get; set; }
         public string PrivateKeyName { get; set; }
+        public string SigningKeyName { get; set; }
         public abstract bool RequiresAuthentication { get; }
     }
 }
