@@ -8,15 +8,15 @@ using Couchbase.Extensions.Encryption.Utils;
 
 namespace Couchbase.Extensions.Encryption
 {
-    public class FieldEncryptorContractResolver : CamelCasePropertyNamesContractResolver
+    public class EncryptedFieldContractResolver : CamelCasePropertyNamesContractResolver
     {
-        public FieldEncryptorContractResolver(Dictionary<string, ICryptoProvider> cryptoProviders)
+        public EncryptedFieldContractResolver(Dictionary<string, ICryptoProvider> cryptoProviders)
         {
             CryptoProviders = cryptoProviders;
             EncryptedFieldPrefix = "__crypt_";
         }
 
-        public FieldEncryptorContractResolver(Dictionary<string, ICryptoProvider> cryptoProviders, string encryptedFieldPrefix)
+        public EncryptedFieldContractResolver(Dictionary<string, ICryptoProvider> cryptoProviders, string encryptedFieldPrefix)
             : this(cryptoProviders)
         {
             EncryptedFieldPrefix = encryptedFieldPrefix;

@@ -29,7 +29,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
 
             var settings = new JsonSerializerSettings
             {
-                ContractResolver = new FieldEncryptorContractResolver(cryptoProviders)
+                ContractResolver = new EncryptedFieldContractResolver(cryptoProviders)
             };
 
             var pocoPlain = new Poco2 { Foo = new List<int> { 3, 4, 5 } };
@@ -46,7 +46,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
         {
             var settings = new JsonSerializerSettings
             {
-                ContractResolver = new FieldEncryptorContractResolver(null)
+                ContractResolver = new EncryptedFieldContractResolver(null)
             };
 
             var pocoPlain = new Poco2 { Foo = new List<int> { 3, 4, 5 } };
@@ -147,7 +147,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
 
             return new JsonSerializerSettings
             {
-                ContractResolver = new FieldEncryptorContractResolver(cryptoProviders)
+                ContractResolver = new EncryptedFieldContractResolver(cryptoProviders)
             };
         }
 
