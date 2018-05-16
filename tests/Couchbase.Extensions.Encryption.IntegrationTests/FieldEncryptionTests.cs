@@ -17,13 +17,14 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
             var key = "!mysecretkey#9^5usdk39d&dlf)03sL";
 
             var config = new ClientConfiguration(TestConfiguration.GetConfiguration());
-            config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore(
-                new KeyValuePair<string, string>("publickey", key),
-                new KeyValuePair<string, string>("mysecret", "myauthpassword")))
-            {
-                PublicKeyName = "publickey",
-                PrivateKeyName = "mysecret"
-            });
+            config.EnableFieldEncryption(new KeyValuePair<string, ICryptoProvider>("MyProvider",
+                new AesCryptoProvider(new InsecureKeyStore(
+                    new KeyValuePair<string, string>("publickey", key),
+                    new KeyValuePair<string, string>("mysecret", "myauthpassword")))
+                {
+                    PublicKeyName = "publickey",
+                    SigningKeyName = "mysecret"
+                }));
 
             using (var cluster = new Cluster(config))
             {
@@ -60,13 +61,14 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
                 var key = "!mysecretkey#9^5usdk39d&dlf)03sL";
 
                 var config = new ClientConfiguration(TestConfiguration.GetConfiguration());
-            config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore(
-                new KeyValuePair<string, string>("mypublickey", key),
-                new KeyValuePair<string, string>("myauthsecret", "myauthpassword")))
-            {
-                PublicKeyName = "mypublickey",
-                PrivateKeyName = "myauthsecret"
-            });
+            config.EnableFieldEncryption(new KeyValuePair<string, ICryptoProvider>("MyProvider",
+                new AesCryptoProvider(new InsecureKeyStore(
+                    new KeyValuePair<string, string>("publickey", key),
+                    new KeyValuePair<string, string>("mysecret", "myauthpassword")))
+                {
+                    PublicKeyName = "publickey",
+                    SigningKeyName = "mysecret"
+                }));
 
                 using (var cluster = new Cluster(config))
                 {
@@ -77,11 +79,11 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
                     {
                         Message = "The old grey goose jumped over the wrickety gate."
                     };
-                    var result = bucket.Upsert("thepoco2_", poco);
+                    var result = bucket.Upsert("thepoco2_string", poco);
 
                     Assert.True(result.Success);
 
-                    var get = bucket.Get<Poco2>("thepoco2");
+                    var get = bucket.Get<Poco2>("thepoco2_string");
                     Assert.True(get.Success);
             }
         }
@@ -92,13 +94,15 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
             var key = "!mysecretkey#9^5usdk39d&dlf)03sL";
 
             var config = new ClientConfiguration(TestConfiguration.GetConfiguration());
-            config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore(
-                new KeyValuePair<string, string>("mypublickey", key),
-                new KeyValuePair<string, string>("myauthsecret", "myauthpassword")))
-            {
-                PublicKeyName = "mypublickey",
-                PrivateKeyName = "myauthsecret"
-            });
+            config.EnableFieldEncryption(new KeyValuePair<string, ICryptoProvider>("MyProvider",
+                new AesCryptoProvider(new InsecureKeyStore(
+                    new KeyValuePair<string, string>("publickey", key),
+                    new KeyValuePair<string, string>("mysecret", "myauthpassword")))
+                {
+                    PublicKeyName = "publickey",
+                    SigningKeyName = "mysecret"
+                }));
+
 
             using (var cluster = new Cluster(config))
             {
@@ -109,11 +113,11 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
                 {
                     Message = 10
                 };
-                var result = bucket.Upsert("thepoco2_int_", poco);
+                var result = bucket.Upsert("thepoco2_int", poco);
 
                 Assert.True(result.Success);
 
-                var get = bucket.Get<Poco2>("thepoco2");
+                var get = bucket.Get<Poco2>("thepoco2_int");
                 Assert.True(get.Success);
             }
         }
@@ -124,13 +128,15 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
             var key = "!mysecretkey#9^5usdk39d&dlf)03sL";
 
             var config = new ClientConfiguration(TestConfiguration.GetConfiguration());
-            config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore(
-                new KeyValuePair<string, string>("mypublickey", key),
-                new KeyValuePair<string, string>("myauthsecret", "myauthpassword")))
-            {
-                PublicKeyName = "mypublickey",
-                PrivateKeyName = "myauthsecret"
-            });
+            config.EnableFieldEncryption(new KeyValuePair<string, ICryptoProvider>("MyProvider",
+                new AesCryptoProvider(new InsecureKeyStore(
+                    new KeyValuePair<string, string>("publickey", key),
+                    new KeyValuePair<string, string>("mysecret", "myauthpassword")))
+                {
+                    PublicKeyName = "publickey",
+                    SigningKeyName = "mysecret"
+                }));
+
 
             using (var cluster = new Cluster(config))
             {
@@ -145,7 +151,7 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
 
                 Assert.True(result.Success);
 
-                var get = bucket.Get<Poco2>("thepoco2");
+                var get = bucket.Get<Poco2>("thepoco2_intstring");
                 Assert.True(get.Success);
             }
         }
@@ -156,13 +162,14 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
             var key = "!mysecretkey#9^5usdk39d&dlf)03sL";
 
             var config = new ClientConfiguration(TestConfiguration.GetConfiguration());
-            config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore(
-                new KeyValuePair<string, string>("mypublickey", key),
-                new KeyValuePair<string, string>("myauthsecret", "myauthpassword")))
-            {
-                PublicKeyName = "mypublickey",
-                PrivateKeyName = "myauthsecret"
-            });
+            config.EnableFieldEncryption(new KeyValuePair<string, ICryptoProvider>("MyProvider",
+                new AesCryptoProvider(new InsecureKeyStore(
+                    new KeyValuePair<string, string>("publickey", key),
+                    new KeyValuePair<string, string>("mysecret", "myauthpassword")))
+                {
+                    PublicKeyName = "publickey",
+                    SigningKeyName = "mysecret"
+                }));
 
             using (var cluster = new Cluster(config))
             {
@@ -184,7 +191,7 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
                         "gate"
                     }
                 };
-                var result = bucket.Upsert("pocowitharray_", poco);
+                var result = bucket.Upsert("pocowitharray", poco);
 
                 Assert.True(result.Success);
 
@@ -200,13 +207,14 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
             var key = "!mysecretkey#9^5usdk39d&dlf)03sL";
 
             var config = new ClientConfiguration(TestConfiguration.GetConfiguration());
-            config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore(
-                new KeyValuePair<string, string>("mypublickey", key),
-                new KeyValuePair<string, string>("myauthsecret", "myauthpassword")))
-            {
-                PublicKeyName = "mypublickey",
-                PrivateKeyName = "myauthsecret"
-            });
+            config.EnableFieldEncryption(new KeyValuePair<string, ICryptoProvider>("MyProvider",
+                new AesCryptoProvider(new InsecureKeyStore(
+                    new KeyValuePair<string, string>("publickey", key),
+                    new KeyValuePair<string, string>("mysecret", "myauthpassword")))
+                {
+                    PublicKeyName = "publickey",
+                    SigningKeyName = "mysecret"
+                }));
 
             using (var cluster = new Cluster(config))
             {
@@ -224,12 +232,13 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
                 var result = bucket.Upsert("mypocokey", poco);
 
                 var get = bucket.Get<PocoWithObject>("mypocokey");
+                Assert.True(result.Success);
             }
         }
 
         public class PocoWithObject
         {
-            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            [EncryptedField(Provider = "MyProvider")]
             public InnerObject Message { get; set; }
         }
 
@@ -243,42 +252,42 @@ namespace Couchbase.Extensions.Encryption.IntegrationTests
 
         public class PocoWithInt
         {
-            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            [EncryptedField(Provider = "MyProvider")]
             public int Message { get; set; }
         }
 
         public class PocoWithString
         {
-            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            [EncryptedField(Provider = "MyProvider")]
             public string Message { get; set; }
         }
 
 
         public class Poco2
         {
-            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            [EncryptedField(Provider = "MyProvider")]
             public string Message { get; set; }
         }
 
         public class PocoWithArray
         {
-            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            [EncryptedField(Provider = "MyProvider")]
             public List<string> Message { get; set; }
         }
 
 
         public class Poco
         {
-            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            [EncryptedField(Provider = "MyProvider")]
             public string Bar { get; set; }
 
-            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            [EncryptedField(Provider = "MyProvider")]
             public int Foo { get; set; }
 
-            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            [EncryptedField(Provider = "MyProvider")]
             public List<int> Baz { get; set; }
 
-            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            [EncryptedField(Provider = "MyProvider")]
             public PocoMoco ChildObject { get; set; }
 
             public string Fizz { get; set; }

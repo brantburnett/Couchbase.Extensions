@@ -5,7 +5,7 @@
     <Title>Couchbase Field Encryption Extensions</Title>
     <Authors>Couchbase, Inc.</Authors>
     <Owners>Couchbase, Inc.</Owners>
-    <Copyright>Copyright 2017</Copyright>
+    <Copyright>Copyright 2018</Copyright>
     <Description>Field level encryption extensions for Couchbase .NET SDK</Description>
     <PackageTags>Couchbase;encryption;cryptography;nosql;JSON;database</PackageTags>
 
@@ -19,6 +19,12 @@
     <AssemblyName>Couchbase.Extensions.Encryption</AssemblyName>
     <NetStandardImplicitPackageVersion>2.0.1</NetStandardImplicitPackageVersion>
     <VersionPrefix>1.0.0</VersionPrefix>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Couchbase.snk</AssemblyOriginatorKeyFile>
+    <Version>1.0.0-beta</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
+    <FileVersion>1.0.0.2</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
