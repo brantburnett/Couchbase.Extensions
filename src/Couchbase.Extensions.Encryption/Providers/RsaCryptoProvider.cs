@@ -8,7 +8,7 @@ namespace Couchbase.Extensions.Encryption.Providers
 {
     public class RsaCryptoProvider : CryptoProviderBase
     {
-        public RsaCryptoProvider(IKeystoreProvider keyStore) : this()
+        public RsaCryptoProvider(IKeystoreProvider keyStore)
         {
             KeyStore = keyStore;
         }
@@ -16,7 +16,6 @@ namespace Couchbase.Extensions.Encryption.Providers
         public RsaCryptoProvider()
         {
             KeySize = 2048;
-            ProviderName = "RSA-" + KeySize;
 #if NETSTANDARD
             Padding = RSAEncryptionPadding.Pkcs1;
 #endif

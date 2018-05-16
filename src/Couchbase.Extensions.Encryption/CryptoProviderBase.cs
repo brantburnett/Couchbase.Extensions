@@ -20,7 +20,7 @@ namespace Couchbase.Extensions.Encryption
             }
         }
 
-        public string ProviderName { get; protected set; }
+        public string ProviderName { get; set; }
         public string PublicKeyName { get; set; }
         public string PrivateKeyName { get; set; }
         public string SigningKeyName { get; set; }

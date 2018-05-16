@@ -36,9 +36,9 @@ namespace Couchbase.Extensions.Encryption
         byte[] GetSignature(byte[] cipherBytes);
 
         /// <summary>
-        /// The name of the <see cref="ICryptoProvider"/> - for example 'AES-256-HMAC-SHA256'.
+        /// The name of the configured <see cref="ICryptoProvider"/> - for example 'MyProvider'.
         /// </summary>
-        string ProviderName { get; }
+        string ProviderName { get; set; }
 
         /// <summary>
         /// The name of the encryption key.

@@ -36,14 +36,14 @@ namespace Couchbase.Extensions.Encryption.UnitTests
             };
 
             var bytes = serializer.Serialize(poco);
-            bytes[90] = Convert.FromBase64String(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("s")))[0];
+            bytes[120] = Convert.FromBase64String(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("s")))[0];
 
             Assert.Throws<AuthenticationException>(() => serializer.Deserialize<Poco>(bytes, 0, bytes.Length));
         }
 
         public class Poco
         {
-            [EncryptedField(Provider = "AES-256-HMAC-SHA256")]
+            [EncryptedField(Provider = "MyProvider")]
             public string StringField { get; set; }
         }
 
@@ -51,7 +51,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
         {
             var providers = new Dictionary<string, ICryptoProvider>
             {
-                {"AES-256-HMAC-SHA256", new AesCryptoProvider(new InsecureKeyStore(
+                {"MyProvider", new AesCryptoProvider(new InsecureKeyStore(
                     new KeyValuePair<string, string>("publickey", "!mysecretkey#9^5usdk39d&dlf)03sL"),
                     new KeyValuePair<string, string>("myauthsecret", "mysecret")))
                 {

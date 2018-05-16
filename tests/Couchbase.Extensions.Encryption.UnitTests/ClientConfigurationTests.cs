@@ -11,7 +11,7 @@ namespace Couchbase.Extensions.Encryption.UnitTests
         public void Test_EnableFieldEncryption()
         {
             var config = new ClientConfiguration();
-            config.EnableFieldEncryption(new AesCryptoProvider(new InsecureKeyStore("thekeyname", "thekey")));
+            config.EnableFieldEncryption("MyProvider", new AesCryptoProvider(new InsecureKeyStore("thekeyname", "thekey")));
 
             Assert.IsType<EncryptedFieldSerializer>(config.Serializer());
         }
