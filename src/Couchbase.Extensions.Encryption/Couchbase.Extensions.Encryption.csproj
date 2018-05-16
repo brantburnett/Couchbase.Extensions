@@ -19,7 +19,7 @@
     <AssemblyName>Couchbase.Extensions.Encryption</AssemblyName>
     <NetStandardImplicitPackageVersion>2.0.1</NetStandardImplicitPackageVersion>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>Couchbase.snk</AssemblyOriginatorKeyFile>
     <Version>1.0.0-beta</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
