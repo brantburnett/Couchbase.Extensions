@@ -84,13 +84,18 @@ namespace Couchbase.Extensions.Caching.UnitTests
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
-            var absoluteExpiration = DateTime.UtcNow.AddDays(1);
+            var now = DateTime.UtcNow;
+
+            var timerIncrement = 1;
+
+            var absoluteExpiration = now.AddDays(timerIncrement);
+
             var result = CouchbaseCacheExtensions.GetLifetime(cache, new DistributedCacheEntryOptions
             {
                 AbsoluteExpiration = new DateTimeOffset(absoluteExpiration)
             });
 
-            Assert.Equal(new DateTime(result.Ticks), absoluteExpiration);
+            Assert.Equal(TimeSpan.FromDays(timerIncrement).Ticks, (long)Math.Round((double)result.Ticks / 1000000000) * 1000000000);
         }
 
         [Fact]
@@ -100,15 +105,18 @@ namespace Couchbase.Extensions.Caching.UnitTests
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
-            var absoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
+            var now = DateTime.UtcNow;
+
+            var timerIncrement = 15;
+
+            var absoluteExpirationRelativeToNow = TimeSpan.FromMinutes(timerIncrement);
+
             var result = CouchbaseCacheExtensions.GetLifetime(cache, new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow
             });
-
-            output.WriteLine(new DateTime(result.Ticks).ToShortDateString());
-            Assert.Equal(new DateTime(result.Ticks).ToShortDateString(),
-                DateTime.UtcNow.AddTicks(absoluteExpirationRelativeToNow.Ticks).ToShortDateString());
+            
+            Assert.Equal(absoluteExpirationRelativeToNow.Ticks, (long)Math.Round((double)result.Ticks/1000000000)*1000000000);
         }
 
         [Fact]
