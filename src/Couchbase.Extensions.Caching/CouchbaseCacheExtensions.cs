@@ -211,11 +211,11 @@ namespace Couchbase.Extensions.Caching
             }
             if (itemOptions?.AbsoluteExpirationRelativeToNow != null)
             {
-                return new TimeSpan(DateTime.UtcNow.Add(itemOptions.AbsoluteExpirationRelativeToNow.Value).Ticks);
+                return itemOptions.AbsoluteExpirationRelativeToNow.Value;
             }
             if (itemOptions?.AbsoluteExpiration != null)
             {
-                return TimeSpan.FromTicks(itemOptions.AbsoluteExpiration.Value.Ticks);
+                return TimeSpan.FromTicks(itemOptions.AbsoluteExpiration.Value.Ticks - DateTime.UtcNow.Ticks);
             }
             return couchbaseCache.Options.Value.LifeSpan ?? CouchbaseCache.InfiniteLifetime;
         }
