@@ -226,6 +226,37 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
             Assert.Equal(ResponseStatus.Success, result.Status);
         }
 
+        [Fact]
+        public async Task Test_SetAsync_With_Absolute_Expires_After_2Seconds()
+        {
+            var cache = GetCache();
+            var docKey = "Test_SetAsync_With_Absolute_Expires_After_2Seconds";
+            await cache.SetAsync(docKey, "some cache value", new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(2)
+                });
+            Thread.Sleep(3000);
+
+            var bucket = ClusterHelper.GetBucket("default");
+            var get = await bucket.GetAsync<dynamic>(docKey);
+            Assert.Equal(ResponseStatus.KeyNotFound, get.Status);
+        }
+
+        [Fact]
+        public async Task Test_SetAsync_With_Absolute()
+        {
+            var cache = GetCache();
+            var docKey = "Test_SetAsync_With_Absolute";
+            await cache.SetAsync(docKey, "some cache value", new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(2)
+            });
+
+            var bucket = ClusterHelper.GetBucket("default");
+            var get = await bucket.GetAsync<dynamic>(docKey);
+            Assert.Equal(ResponseStatus.Success, get.Status);
+        }
+
         static byte[] GetBytes(Poco poco)
         {
             return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(poco));
