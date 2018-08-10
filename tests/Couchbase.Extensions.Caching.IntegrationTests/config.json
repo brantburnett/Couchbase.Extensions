@@ -1,7 +1,7 @@
 ﻿{
   "testSettings": {
     "current": "basic",
-    "hostname": "localhost",
+    "hostname": "10.142.180.102",
     "bootPort": "8091",
     "adminUsername": "Administrator",
     "adminPassword": "password",

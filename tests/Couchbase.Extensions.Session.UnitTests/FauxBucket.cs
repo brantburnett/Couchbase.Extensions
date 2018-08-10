@@ -1870,6 +1870,11 @@ namespace Couchbase.Extensions.Session.UnitTests
             throw new NotImplementedException();
         }
 
+        public Task<ISearchQueryResult> QueryAsync(SearchQuery searchQuery, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public IResult<TContent> MapGet<TContent>(string key, string mapkey)
         {
             throw new NotImplementedException();
