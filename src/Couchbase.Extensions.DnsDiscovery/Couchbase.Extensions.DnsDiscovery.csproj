@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Authors>Brant Burnett</Authors>
+    <Authors>Brant Burnett; Couchbase, Inc.</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Couchbase.Extensions.DnsDiscovery</AssemblyName>
     <PackageId>Couchbase.Extensions.DnsDiscovery</PackageId>
@@ -10,12 +10,14 @@
     <PackageProjectUrl>https://github.com/brantburnett/Couchbase.Extensions</PackageProjectUrl>
     <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/brantburnett/Couchbase.Extensions</RepositoryUrl>
+    <RepositoryUrl>https://github.com/couchbaselabs/Couchbase.Extensions</RepositoryUrl>
     <NetStandardImplicitPackageVersion>2.0.1</NetStandardImplicitPackageVersion>
     <AssetTargetFallback>$(AssetTargetFallback);dnxcore50</AssetTargetFallback>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <Description>A .Net Core style dependency injection framework for a Couchbase cluster and buckets. It simplifies cluster configuration, lifetime management, and bucket injection.</Description>
+    <Copyright>Couchbase, Inc. 2018</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
