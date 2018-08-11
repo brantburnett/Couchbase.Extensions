@@ -8,6 +8,14 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <Description>A custom ASP.NET Core Middleware plugin for distributed session state using Couchbase server as the backing store. Supports both Memcached (in-memory) and Couchbase (persistent) buckets.</Description>
+    <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/couchbaselabs/Couchbase.Extensions</PackageProjectUrl>
+    <Copyright>Couchbase, Inc. 2018</Copyright>
+    <PackageIconUrl>https://raw.githubusercontent.com/couchbaselabs/Linq2Couchbase/master/Packaging/couchbase-logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/couchbaselabs/Couchbase.Extensions</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Couchbase;netcore;cache;session;caching;distributed;middleware;database;nosql;json</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
