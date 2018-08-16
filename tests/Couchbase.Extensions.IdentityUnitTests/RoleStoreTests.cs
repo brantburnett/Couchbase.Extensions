@@ -2,7 +2,7 @@
 
 namespace Couchbase.Extensions.IdentityUnitTests
 {
-    public class Class1
+    public class RoleStoreTests
     {
     }
 }

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Couchbase.Linq.Filters;
 
 namespace Couchbase.Extensions.Identity
 {
+    [DocumentTypeFilter("identityrole")]
     public class IdentityRole
     {
         public IdentityRole()
         {
-            //Id = ObjectId.GenerateNewId().ToString();
         }
 
         public IdentityRole(string roleName) : this()
@@ -21,6 +22,8 @@ namespace Couchbase.Extensions.Identity
         public string Name { get; set; }
 
         public string NormalizedName { get; set; }
+
+        public string Type { get; set; }
 
         public override string ToString() => Name;
     }
