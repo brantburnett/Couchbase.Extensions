@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using Couchbase.Linq.Filters;
 using Microsoft.AspNetCore.Identity;
 
 
 namespace Couchbase.Extensions.Identity
 {
+    [DocumentTypeFilter("identituser")]
     public class IdentityUser
     {
        public IdentityUser()
 		{
-			//Id = ObjectId.GenerateNewId().ToString();
 			Roles = new List<string>();
 			Logins = new List<IdentityUserLogin>();
 			Claims = new List<IdentityUserClaim>();

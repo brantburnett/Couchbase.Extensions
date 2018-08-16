@@ -5,24 +5,33 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core;
+using Couchbase.Linq;
+using Couchbase.Linq.Extensions;
+using Couchbase.N1QL;
 using Microsoft.AspNetCore.Identity;
 
 namespace Couchbase.Extensions.Identity
 {
     public class RoleStore<TRole> : IQueryableRoleStore<TRole> where TRole : IdentityRole
     {
-        private IBucket _bucket;
+        private IBucketContext _context;
 
-        public RoleStore(IBucket bucket)
+        public RoleStore(IBucketContext context)
         {
-            _bucket = bucket;
+            _context = context;
         }
 
         public IQueryable<TRole> Roles { get; protected set; }
 
         public async Task<IdentityResult> CreateAsync(TRole role, CancellationToken cancellationToken)
         {
-            var result = await _bucket.InsertAsync(role.Id, role).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            var result = await _context.Bucket.InsertAsync(role.Id, role).ConfigureAwait(false);
             if (result.Success)
             {
                 return IdentityResult.Success;
@@ -33,7 +42,13 @@ namespace Couchbase.Extensions.Identity
 
         public async Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken)
         {
-            var result = await _bucket.RemoveAsync(role.Id).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            var result = await _context.Bucket.RemoveAsync(role.Id).ConfigureAwait(false);
             if (result.Success)
             {
                 return IdentityResult.Success;
@@ -49,13 +64,23 @@ namespace Couchbase.Extensions.Identity
 
         public async Task<TRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
         {
-            var result = await _bucket.GetAsync<TRole>(roleId).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (roleId == null)
+            {
+                throw new ArgumentNullException(nameof(roleId));
+            }
+
+            var result = await _context.Bucket.GetAsync<TRole>(roleId).ConfigureAwait(false);
             return result.Success ? result.Value : null;
         }
 
-        public Task<TRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        public async Task<TRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var query = await (from r in _context.Query<TRole>()
+                where r.NormalizedName == normalizedRoleName
+                select r).Take(1).ExecuteAsync(cancellationToken).ConfigureAwait(false);
+
+            return query.SingleOrDefault();
         }
 
         public Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken) =>
@@ -67,19 +92,37 @@ namespace Couchbase.Extensions.Identity
 
         public Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
             role.NormalizedName = normalizedName;
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         public Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
             role.Name = roleName;
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         public async Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken)
         {
-            var result = await _bucket.ReplaceAsync(role.Id, role).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            var result = await _context.Bucket.ReplaceAsync(role.Id, role).ConfigureAwait(false);
             if (result.Success)
             {
                 return IdentityResult.Success;
