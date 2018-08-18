@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text;
+using Couchbase.Linq.Filters;
 
 namespace Couchbase.Extensions.Identity
 {
     /// <summary>
     /// A claim that a user possesses.
     /// </summary>
+    [DocumentTypeFilter("identityuserclaim")]
     public class IdentityUserClaim
     {
         public IdentityUserClaim()

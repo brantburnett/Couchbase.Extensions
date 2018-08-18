@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Couchbase.Linq.Filters;
+using Newtonsoft.Json;
 
 namespace Couchbase.Extensions.Identity
 {
@@ -23,6 +24,7 @@ namespace Couchbase.Extensions.Identity
 
         public string NormalizedName { get; set; }
 
+        [JsonProperty("type")]
         public string Type { get; set; }
 
         public override string ToString() => Name;

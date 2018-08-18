@@ -4,11 +4,12 @@ using System.Linq;
 using System.Security.Claims;
 using Couchbase.Linq.Filters;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 
 
 namespace Couchbase.Extensions.Identity
 {
-    [DocumentTypeFilter("identituser")]
+    [DocumentTypeFilter("identityuser")]
     public class IdentityUser
     {
        public IdentityUser()
@@ -21,7 +22,9 @@ namespace Couchbase.Extensions.Identity
 
 		public string Id { get; set; }
 
-		public string UserName { get; set; }
+        [JsonProperty("type")] public string Type { get; set; }
+
+        public string UserName { get; set; }
 
 		public string NormalizedUserName { get; set; }
 

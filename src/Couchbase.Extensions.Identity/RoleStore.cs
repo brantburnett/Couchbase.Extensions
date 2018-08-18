@@ -12,13 +12,25 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Couchbase.Extensions.Identity
 {
+    public class RoleStore : RoleStore<IdentityRole>
+    {
+        public RoleStore(ICouchbaseIdentityBucketProvider provider) : base(provider)
+        {
+        }
+    }
+
     public class RoleStore<TRole> : IQueryableRoleStore<TRole> where TRole : IdentityRole
     {
         private IBucketContext _context;
 
-        public RoleStore(IBucketContext context)
+        public RoleStore(ICouchbaseIdentityBucketProvider provider)
         {
-            _context = context;
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+
+            _context = new BucketContext(provider.GetBucket());
         }
 
         public IQueryable<TRole> Roles { get; protected set; }
@@ -31,6 +43,10 @@ namespace Couchbase.Extensions.Identity
                 throw new ArgumentNullException(nameof(role));
             }
 
+            if (role.Id == null)
+            {
+                role.Id = Guid.NewGuid().ToString();
+            }
             var result = await _context.Bucket.InsertAsync(role.Id, role).ConfigureAwait(false);
             if (result.Success)
             {
@@ -59,7 +75,7 @@ namespace Couchbase.Extensions.Identity
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public async Task<TRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
@@ -76,6 +92,12 @@ namespace Couchbase.Extensions.Identity
 
         public async Task<TRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (normalizedRoleName == null)
+            {
+                throw new ArgumentNullException(nameof(normalizedRoleName));
+            }
+
             var query = await (from r in _context.Query<TRole>()
                 where r.NormalizedName == normalizedRoleName
                 select r).Take(1).ExecuteAsync(cancellationToken).ConfigureAwait(false);
@@ -83,12 +105,38 @@ namespace Couchbase.Extensions.Identity
             return query.SingleOrDefault();
         }
 
-        public Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken) =>
-            Task.FromResult(role.NormalizedName);
+        public Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
 
-        public Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken) => Task.FromResult(role.Id);
+            return Task.FromResult(role.NormalizedName);
+        }
 
-        public Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken) => Task.FromResult(role.Name);
+        public Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            return Task.FromResult(role.Id);
+        }
+
+        public Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            return Task.FromResult(role.Name);
+        }
 
         public Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken)
         {
