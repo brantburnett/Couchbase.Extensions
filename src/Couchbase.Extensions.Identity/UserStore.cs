@@ -8,18 +8,30 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Couchbase.Extensions.Identity
 {
+    public class UserStore : UserStore<IdentityUser>
+    {
+        public UserStore(ICouchbaseIdentityBucketProvider provider) : base(provider)
+        {
+        }
+    }
+
+
     public class UserStore<TUser> : IUserPasswordStore<TUser> where TUser : IdentityUser
     {
         private IBucketContext _context;
 
-        public UserStore(IBucketContext context)
+        public UserStore(ICouchbaseIdentityBucketProvider provider)
         {
-            _context = context;
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+            _context = new BucketContext(provider.GetBucket());
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public Task<string> GetUserIdAsync(TUser user, CancellationToken cancellationToken)
@@ -86,7 +98,10 @@ namespace Couchbase.Extensions.Identity
             {
                 throw new ArgumentNullException(nameof(user));
             }
-
+            if (user.Id == null)
+            {
+                user.Id = Guid.NewGuid().ToString();
+            }
             var result = await _context.Bucket.InsertAsync(user.Id, user).ConfigureAwait(false);
             if (result.Success)
             {
