@@ -45,7 +45,7 @@ namespace Couchbase.Extensions.Identity
 
             if (role.Id == null)
             {
-                role.Id = Guid.NewGuid().ToString();
+                role.Id = role.NormalizedName;
             }
             var result = await _context.Bucket.InsertAsync(role.Id, role).ConfigureAwait(false);
             if (result.Success)
