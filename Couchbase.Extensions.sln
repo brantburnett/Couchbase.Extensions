@@ -40,7 +40,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3C4744F1-A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Identity", "src\Couchbase.Extensions.Identity\Couchbase.Extensions.Identity.csproj", "{68E6BEC6-B0F9-420E-9477-C175CCD54DF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Extensions.IdentityUnitTests", "tests\Couchbase.Extensions.IdentityUnitTests\Couchbase.Extensions.IdentityUnitTests.csproj", "{10C4D39D-F384-4E57-8F1A-146DF0D718EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.IdentityUnitTests", "tests\Couchbase.Extensions.IdentityUnitTests\Couchbase.Extensions.IdentityUnitTests.csproj", "{10C4D39D-F384-4E57-8F1A-146DF0D718EF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{58E7557B-D434-402A-9B6B-0DBE59E8DF3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Extensions.Identity.Example", "example\Couchbase.Extensions.Identity.Example\Couchbase.Extensions.Identity.Example.csproj", "{C603698C-CBD8-4B07-A43C-37F507D925C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -100,6 +104,10 @@ Global
 		{10C4D39D-F384-4E57-8F1A-146DF0D718EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10C4D39D-F384-4E57-8F1A-146DF0D718EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10C4D39D-F384-4E57-8F1A-146DF0D718EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C603698C-CBD8-4B07-A43C-37F507D925C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C603698C-CBD8-4B07-A43C-37F507D925C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C603698C-CBD8-4B07-A43C-37F507D925C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C603698C-CBD8-4B07-A43C-37F507D925C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +126,7 @@ Global
 		{14E1822C-F365-48FF-B265-7D679607872E} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
 		{68E6BEC6-B0F9-420E-9477-C175CCD54DF7} = {EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}
 		{10C4D39D-F384-4E57-8F1A-146DF0D718EF} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
+		{C603698C-CBD8-4B07-A43C-37F507D925C9} = {58E7557B-D434-402A-9B6B-0DBE59E8DF3B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BBE581CF-99BB-42AD-A7C8-59FF4B45DB55}
