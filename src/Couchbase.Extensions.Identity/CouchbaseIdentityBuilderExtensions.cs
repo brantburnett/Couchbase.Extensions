@@ -33,7 +33,8 @@ namespace Couchbase.Extensions.Identity
             where TRole : IdentityRole, new()
         {
             return services.AddIdentity<TUser, TRole>()
-                .RegisterCouchbaseStores<TUser, TRole>(configuration, bucketName);
+                .RegisterCouchbaseStores<TUser, TRole>(configuration, bucketName)
+                .AddDefaultTokenProviders();
         }
     }
 }
