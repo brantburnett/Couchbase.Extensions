@@ -12,7 +12,7 @@ namespace Couchbase.Extensions.Identity
     [DocumentTypeFilter("identityuser")]
     public class IdentityUser
     {
-       public IdentityUser()
+        public IdentityUser()
 		{
 			Roles = new List<string>();
 			Logins = new List<IdentityUserLogin>();

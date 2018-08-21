@@ -98,9 +98,10 @@ namespace Couchbase.Extensions.Identity
             {
                 throw new ArgumentNullException(nameof(user));
             }
+
             if (user.Id == null)
             {
-                user.Id = Guid.NewGuid().ToString();
+                user.Id = user.NormalizedUserName;
             }
             var result = await _context.Bucket.InsertAsync(user.Id, user).ConfigureAwait(false);
             if (result.Success)
