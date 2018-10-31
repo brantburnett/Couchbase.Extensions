@@ -1,0 +1,14 @@
+﻿@model Couchbase.Extensions.Locks.Example.Models.RequestWithLockModel
+
+@{
+    Layout = null;
+}
+
+@if (Model.WasLocked)
+{
+    <p>Lock was acquired after @Model.LockDelayTime and held for @Model.LockHoldTime</p>
+}
+else
+{
+    <p>Lock was not acquired.</p>
+}

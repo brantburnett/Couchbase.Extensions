@@ -12,6 +12,7 @@ A collection of extensions for the [Couchbase .Net SDK](https://github.com/couch
 - [Couchbase.Extensions.DnsDiscovery](docs/dns-srv.md):
 A .Net Core compatible DNS SRV mechanism for discovering a Couchbase cluster dynamically.
 - [Couchbase.Extensions.DependencyInjection](docs/dependency-injection.md): A .Net Core style dependency injection framework for a Couchbase cluster and buckets.  It simplifies cluster configuration, lifetime management, and bucket injection.
+- [Couchbase.Extensions.Locks](docs/locks.md): A system for managing distributed mutexs backed by Couchbase.
 
 ## Using Couchbase 5.0 Role Based Authentication ##
 

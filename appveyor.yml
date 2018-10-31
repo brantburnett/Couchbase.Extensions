@@ -19,10 +19,12 @@ after_build:
 - cmd: dotnet pack --configuration %CONFIGURATION% "src/Couchbase.Extensions.DnsDiscovery"
 - cmd: dotnet pack --configuration %CONFIGURATION% "src/Couchbase.Extensions.Session"
 - cmd: dotnet pack --configuration %CONFIGURATION% "src/Couchbase.Extensions.Caching"
+- cmd: dotnet pack --configuration %CONFIGURATION% "src/Couchbase.Extensions.Locks"
 test_script:
 - cmd: dotnet test "tests\Couchbase.Extensions.DependencyInjection.UnitTests"
 - cmd: dotnet test "tests\Couchbase.Extensions.DnsDiscovery.UnitTests"
 - cmd: dotnet test "tests\Couchbase.Extensions.Caching.UnitTests"
+- cmd: dotnet test "tests\Couchbase.Extensions.Locks.UnitTests"
 artifacts:
 - path: src/Couchbase.Extensions.DependencyInjection/bin/%CONFIGURATION%/*.nupkg
   name: DependencyInjection
@@ -32,6 +34,8 @@ artifacts:
   name: Session
 - path: src/Couchbase.Extensions.Caching/bin/%CONFIGURATION%/*.nupkg
   name: Caching
+- path: src/Couchbase.Extensions.Locks/bin/%CONFIGURATION%/*.nupkg
+  name: Locks
 deploy:
 - provider: NuGet
   api_key:
@@ -43,6 +47,12 @@ deploy:
   api_key:
     secure: KzT1ESVyB5LB0Ovg+dPUmvZYQJ0XYoBEe9DW1pBDKzv0y/7y2RlJ1xt16ZI5dnVE
   artifact: DnsDiscovery
+  on:
+    APPVEYOR_REPO_TAG: true
+- provider: NuGet
+  api_key:
+    secure: KzT1ESVyB5LB0Ovg+dPUmvZYQJ0XYoBEe9DW1pBDKzv0y/7y2RlJ1xt16ZI5dnVE
+  artifact: Locks
   on:
     APPVEYOR_REPO_TAG: true
 notifications:
