@@ -112,7 +112,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="value">An array of bytes representing the item.</param>
         /// <param name="options">The <see cref="DistributedCacheEntryOptions"/> for the item; note that only sliding expiration is currently supported.</param>
         /// <param name="token">The <see cref="CancellationToken"/> for the operation.</param>
-        public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options,
+        public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options,
             CancellationToken token = new CancellationToken())
         {
             token.ThrowIfCancellationRequested();
@@ -125,7 +125,7 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(value));
             }
 
-            return Bucket.UpsertAsync(key, value, GetLifetime(options));
+            await Bucket.UpsertAsync(key, value, GetLifetime(options)).ConfigureAwait(false);
         }
 
         /// <summary>
