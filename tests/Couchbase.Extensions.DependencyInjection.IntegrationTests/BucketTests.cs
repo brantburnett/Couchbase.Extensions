@@ -30,7 +30,7 @@ namespace Couchbase.Extensions.DependencyInjection.IntegrationTests
 
                 var bucketProvider = serviceProvider.GetRequiredService<IBucketProvider>();
 
-                var bucket = bucketProvider.GetBucket("travel-sample");
+                var bucket = bucketProvider.GetBucket("default");
 
                 var result = bucket.Get<dynamic>("some-document");
 
@@ -55,7 +55,7 @@ namespace Couchbase.Extensions.DependencyInjection.IntegrationTests
             services
                 .AddLogging()
                 .AddCouchbase(configuration)
-                .AddCouchbaseBucket<ITestBucketProvider>("travel-sample");
+                .AddCouchbaseBucket<ITestBucketProvider>("default");
 
             var serviceProvider = services.BuildServiceProvider();
 
