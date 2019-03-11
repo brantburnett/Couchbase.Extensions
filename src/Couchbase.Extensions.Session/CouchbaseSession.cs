@@ -189,7 +189,8 @@ namespace Couchbase.Extensions.Session
             Load();
             value = default(T);
             var success = _store.TryGetValue(key, out var item);
-            value = _transcoder.Decode<T>(item, 0, item.Length, new Flags(), OperationCode.NoOp);
+            if (success)
+                value = _transcoder.Decode<T>(item, 0, item.Length, new Flags(), OperationCode.NoOp);
             return success;
         }
 
