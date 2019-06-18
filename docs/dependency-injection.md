@@ -127,11 +127,11 @@ public class HomeController : Controller
 
 ### Shutdown ###
 
-During application shutdown it's best to close the Couchbase connections gracefully.  You can do this using the `ICouchbaseLifetimeService`.  For Asp.Net Core, you can call this service from the ApplicationStopped cancellation token of `IApplicationLifetime`.
+During application shutdown it's best to close the Couchbase connections gracefully.  You can do this using the `ICouchbaseLifetimeService`.  For Asp.Net Core, you can call this service from the ApplicationStopped cancellation token of `IHostApplicationLifetime`.
 
 ```csharp
 public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
-            IApplicationLifetime applicationLifetime)
+            IHostApplicationLifetime applicationLifetime)
 {
 	// Other application startup here
 
