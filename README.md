@@ -6,7 +6,7 @@
 
 A collection of extensions for the [Couchbase .Net SDK](https://github.com/couchbase/couchbase-net-client) designed to simplify working with Couchbase within .Net Core applications.
 
-## NOTE: Not supported under Couchbase Enterprise Support Subscriptions! ##
+While not a officially supported Couchbase project, this repo is actively maintained and monitored. If you happen to find a bug or have any questions, please either create an [issue](https://github.com/couchbaselabs/couchbase.extensions/issues) or make a post on [forums.couchbase.com](forums.couchbase.com). Additionally, we actively accept contributions!
 
 ## Developer Guide ##
 - [Couchbase.Extensions.Caching](docs/caching.md): A distributed Cache [Middleware](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware) for [ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/) and [Couchbase](http://couchbase.com) server
