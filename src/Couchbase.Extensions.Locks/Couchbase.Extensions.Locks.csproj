@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Authors>Brant Burnett</Authors>
+    <Authors>Couchbase, Inc.</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Couchbase.Extensions.Locks</AssemblyName>
     <PackageId>Couchbase.Extensions.Locks</PackageId>
@@ -16,6 +16,9 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+
+		<VersionPrefix>1.0.0</VersionPrefix>
+    <VersionSuffix>local-$([System.DateTime]::UtcNow.ToString('yyyyMMddHHmm'))</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
