@@ -16,6 +16,7 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <Description>A .Net Core style dependency injection framework for a Couchbase cluster and buckets. It simplifies cluster configuration, lifetime management, and bucket injection.</Description>
   </PropertyGroup>
 
   <ItemGroup>
