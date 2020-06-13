@@ -1,9 +1,5 @@
 # Couchbase Extensions #
 
-[![Build status](https://ci.appveyor.com/api/projects/status/5jlr7hh5ay540guk?svg=true)](https://ci.appveyor.com/project/couchbaselabs/couchbase-extensions/branch/master)
-
-
-
 A collection of extensions for the [Couchbase .Net SDK](https://github.com/couchbase/couchbase-net-client) designed to simplify working with Couchbase within .Net Core applications.
 
 ## Developer Guide ##
