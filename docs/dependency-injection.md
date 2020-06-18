@@ -1,5 +1,7 @@
 ## Couchbase.Extensions.DependencyInjection ##
 
+> :warning: **Note:** This repository only hosts Couchbase.Extensions.DependencyInjection for SDK 2.x. It has been relocated to [the main SDK repository](https://github.com/couchbase/couchbase-net-client) for SDK 3.x, and is now versioned alongside the SDK.
+
 A .Net Core style dependency injection framework for a Couchbase cluster and buckets.  It simplifies cluster configuration, lifetime management, and bucket injection.
 
 ## Getting Started ##
