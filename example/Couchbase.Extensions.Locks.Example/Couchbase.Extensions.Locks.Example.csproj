@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Couchbase.Extensions.Locks\Couchbase.Extensions.Locks.csproj" />
-    <ProjectReference Include="..\..\src\Couchbase.Extensions.DependencyInjection\Couchbase.Extensions.DependencyInjection.csproj" />
   </ItemGroup>
 
 </Project>

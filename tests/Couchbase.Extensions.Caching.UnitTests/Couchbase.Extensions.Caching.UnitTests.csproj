@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Couchbase.Extensions.Caching\Couchbase.Extensions.Caching.csproj" />
-    <ProjectReference Include="..\..\src\Couchbase.Extensions.DependencyInjection\Couchbase.Extensions.DependencyInjection.csproj" />
     <ProjectReference Include="..\..\src\Couchbase.Extensions.Session\Couchbase.Extensions.Session.csproj" />
   </ItemGroup>
 
