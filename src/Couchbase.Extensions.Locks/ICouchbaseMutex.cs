@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Couchbase.Extensions.Locks
@@ -28,10 +29,11 @@ namespace Couchbase.Extensions.Locks
         /// If auto renewal is in progress, future renewals will use the new expiration duration.
         /// </remarks>
         /// <param name="expiration">Length of time to renew the lock.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Task.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="expiration"/> is not positive.</exception>
         /// <exception cref="CouchbaseLockUnavailableException">The lock already expired and was taken.</exception>
-        Task Renew(TimeSpan expiration);
+        Task Renew(TimeSpan expiration, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Enables automatic lock renewal until the lock is disposed, using the previously set expiration.

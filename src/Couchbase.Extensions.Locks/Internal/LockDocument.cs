@@ -1,5 +1,5 @@
 ﻿using System;
-using Couchbase.Core.Serialization;
+using Couchbase.Core.IO.Serializers;
 using Newtonsoft.Json;
 
 namespace Couchbase.Extensions.Locks.Internal
@@ -9,10 +9,10 @@ namespace Couchbase.Extensions.Locks.Internal
         private const string LockPrefix = "__lock_";
 
         [JsonProperty(PropertyName = "name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonProperty(PropertyName = "holder")]
-        public string Holder { get; set; }
+        public string? Holder { get; set; }
 
         [JsonConverter(typeof(UnixMillisecondsConverter))]
         [JsonProperty(PropertyName = "requestedDateTime")]

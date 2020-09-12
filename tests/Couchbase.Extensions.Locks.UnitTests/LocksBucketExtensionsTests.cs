@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Couchbase.Core;
+using Couchbase.Extensions.Locks.Internal;
+using Couchbase.KeyValue;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -13,12 +17,12 @@ namespace Couchbase.Extensions.Locks.UnitTests
         #region RequestMutexAsync
 
         [Fact]
-        public async Task RequestMutexAsync_NullBucket_ArgumentNullException()
+        public async Task RequestMutexAsync_NullCollection_ArgumentNullException()
         {
             // Act/Assert
 
-            await Assert.ThrowsAsync<ArgumentNullException>("bucket",
-                () => LocksBucketExtensions.RequestMutexAsync(null, "name", "holder", OneSecond));
+            await Assert.ThrowsAsync<ArgumentNullException>("collection",
+                () => LocksCollectionExtensions.RequestMutexAsync(null, "name", "holder", OneSecond));
         }
 
         [Theory]
@@ -30,12 +34,12 @@ namespace Couchbase.Extensions.Locks.UnitTests
         {
             // Arrange
 
-            var bucket = new Mock<IBucket>().Object;
+            var collection = BuildMockCollection();
 
             // Act/Assert
 
             await Assert.ThrowsAsync<ArgumentException>(paramName,
-                () => bucket.RequestMutexAsync(name, holder, OneSecond));
+                () => collection.Object.RequestMutexAsync(name, holder, OneSecond));
         }
 
         [Theory]
@@ -47,12 +51,35 @@ namespace Couchbase.Extensions.Locks.UnitTests
             // Arrange
 
             var expiration = TimeSpan.Parse(expirationString);
-            var bucket = new Mock<IBucket>().Object;
+            var collection = BuildMockCollection();
 
             // Act/Assert
 
             await Assert.ThrowsAsync<ArgumentOutOfRangeException>("expiration",
-                () => bucket.RequestMutexAsync("name", "holder", expiration));
+                () => collection.Object.RequestMutexAsync("name", "holder", expiration));
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private static Mock<ICouchbaseCollection> BuildMockCollection()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(p => p.GetService(typeof(ILogger<CouchbaseMutex>)))
+                .Returns(NullLogger<CouchbaseMutex>.Instance);
+
+            var cluster = Mock.Of<ICluster>(p => p.ClusterServices == serviceProvider.Object);
+            var bucket = Mock.Of<IBucket>(p => p.Cluster == cluster);
+            var scope = Mock.Of<IScope>(p => p.Bucket == bucket);
+
+            var collection = new Mock<ICouchbaseCollection>();
+            collection
+                .Setup(p => p.Scope)
+                .Returns(scope);
+
+            return collection;
         }
 
         #endregion

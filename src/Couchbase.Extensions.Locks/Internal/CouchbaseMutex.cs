@@ -1,21 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Couchbase.Core;
-using Couchbase.IO;
-using Couchbase.Logging;
+using Couchbase.Core.Exceptions;
+using Couchbase.Core.Exceptions.KeyValue;
+using Couchbase.Core.IO.Operations;
+using Couchbase.KeyValue;
+using Microsoft.Extensions.Logging;
 
 namespace Couchbase.Extensions.Locks.Internal
 {
     /// <inheritdoc/>
     internal sealed class CouchbaseMutex : ICouchbaseMutex
     {
-        private readonly ILog _log = LogManager.GetLogger(typeof(CouchbaseMutex));
+        private readonly ICouchbaseCollection _collection;
+        private readonly ILogger<CouchbaseMutex> _logger;
 
-        private readonly IBucket _bucket;
         private ulong _cas;
         private TimeSpan _expirationInterval;
-        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource? _cancellationTokenSource;
 
         /// <inheritdoc/>
         public string Name { get; }
@@ -23,15 +28,16 @@ namespace Couchbase.Extensions.Locks.Internal
         /// <inheritdoc/>
         public string Holder { get; }
 
-        public CouchbaseMutex(IBucket bucket, string name, string holder)
+        public CouchbaseMutex(ICouchbaseCollection collection, string name, string holder, ILogger<CouchbaseMutex> logger)
         {
-            _bucket = bucket ?? throw new ArgumentNullException(nameof(bucket));
+            _collection = collection ?? throw new ArgumentNullException(nameof(collection));
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Holder = holder ?? throw new ArgumentNullException(nameof(holder));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc/>
-        public async Task Renew(TimeSpan expiration)
+        public async Task Renew(TimeSpan expiration, CancellationToken cancellationToken = default)
         {
             if (expiration <= TimeSpan.Zero)
             {
@@ -45,56 +51,94 @@ namespace Couchbase.Extensions.Locks.Internal
                 RequestedDateTime = DateTime.UtcNow
             };
 
-            IOperationResult<LockDocument> result;
-            if (_cas == 0)
+            bool lockAcquired = false;
+            IMutationResult? result = null;
+            try
             {
-                // We're creating a new lock
-                _log.Debug("Requesting lock '{0}' for holder '{1}' for {2}", Name, Holder, expiration);
-                result = await _bucket.InsertAsync(key, document, expiration).ConfigureAwait(false);
-            }
-            else
-            {
-                _log.Debug("Renewing lock '{0}' for holder '{1}' for {2}", Name, Holder, expiration);
-                result = await _bucket.UpsertAsync(key, document, _cas, expiration).ConfigureAwait(false);
-            }
-
-            if (result.Status == ResponseStatus.DocumentMutationDetected || result.Status == ResponseStatus.KeyExists)
-            {
-                _log.Debug("Lock '{0}' unavailable, getting lock info", Name);
-
-                var getResult = await _bucket.GetDocumentAsync<LockDocument>(key).ConfigureAwait(false);
-                if (getResult.Status == ResponseStatus.KeyNotFound)
+                if (_cas == 0)
                 {
-                    // Couldn't find the lock, must have expired between Insert and Get, try one more time
-                    result = await _bucket.InsertAsync(key, document, expiration).ConfigureAwait(false);
-                    if (result.Status == ResponseStatus.KeyExists)
+                    // We're creating a new lock
+                    _logger.LogDebug("Requesting lock '{name}' for holder '{holder}' for {expiration}", Name, Holder,
+                        expiration);
+                    result = await _collection.InsertAsync(key, document,
+                            new InsertOptions().Expiry(expiration).CancellationToken(cancellationToken))
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    _logger.LogDebug("Renewing lock '{name}' for holder '{holder}' for {expiration}", Name, Holder,
+                        expiration);
+                    result = await _collection.ReplaceAsync(key, document,
+                            new ReplaceOptions().Expiry(expiration).CancellationToken(cancellationToken).Cas(_cas))
+                        .ConfigureAwait(false);
+                }
+
+                lockAcquired = true;
+            }
+            catch (CasMismatchException)
+            {
+                // This is a valid case, trap the exception
+                _logger.LogDebug("CAS mismatch updating lock '{name}'", Name);
+            }
+            catch (DocumentExistsException)
+            {
+                // This is a valid case, trap the exception
+                _logger.LogDebug("Lock document already exists for lock '{name}'", Name);
+            }
+            catch (DocumentNotFoundException)
+            {
+                // This is a valid, but rare, case where the document being renewed expired before
+                // the renewal. In this case, we'll let the logic move on, which will recreate the document.
+                _logger.LogDebug("Lock document missing for lock '{name}'", Name);
+            }
+
+            if (lockAcquired)
+            {
+                _logger.LogDebug("Lock '{name}' issued to holder '{holder}'", Name, Holder);
+
+                _expirationInterval = expiration;
+                _cas = result!.Cas;
+
+                return;
+            }
+
+            if (!lockAcquired)
+            {
+                _logger.LogDebug("Lock '{name}' unavailable, getting lock info", Name);
+
+                IGetResult getResult;
+                try
+                {
+                    getResult = await _collection.GetAsync(key).ConfigureAwait(false);
+                }
+                catch (DocumentNotFoundException)
+                {
+                    try
+                    {
+                        // Couldn't find the lock, must have expired between Insert and Get, try one more time
+                        result = await _collection.InsertAsync(key, document,
+                                new InsertOptions().Expiry(expiration).CancellationToken(cancellationToken))
+                            .ConfigureAwait(false);
+                    }
+                    catch (DocumentExistsException)
                     {
                         throw new CouchbaseLockUnavailableException(Name);
                     }
 
-                    _log.Debug("Lock '{0}' issued to holder '{1}'", Name, Holder);
-                    result.EnsureSuccess();
+                    _logger.LogDebug("Lock '{name}' issued to holder '{holder}'", Name, Holder);
 
                     _expirationInterval = expiration;
                     _cas = result.Cas;
                     return;
                 }
 
-                getResult.EnsureSuccess();
-
-                _log.Debug("Unable to acquire lock '{0}' for holder '{1}'", Name, Holder);
+                _logger.LogDebug("Unable to acquire lock '{name}' for holder '{holder}'", Name, Holder);
 
                 throw new CouchbaseLockUnavailableException(Name)
                 {
-                    Holder = getResult.Content.Holder
+                    Holder = getResult.ContentAs<LockDocument>().Holder
                 };
             }
-
-            _log.Debug("Lock '{0}' issued to holder '{1}'", Name, Holder);
-            result.EnsureSuccess();
-
-            _expirationInterval = expiration;
-            _cas = result.Cas;
         }
 
         /// <inheritdoc/>
@@ -111,6 +155,7 @@ namespace Couchbase.Extensions.Locks.Internal
 
             // Abort previous AutoRenew
             _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
 
             _cancellationTokenSource = new CancellationTokenSource();
             var token = _cancellationTokenSource.Token;
@@ -130,11 +175,11 @@ namespace Couchbase.Extensions.Locks.Internal
                             var lockDuration = TimeSpan.FromTicks(
                                 Math.Min(_expirationInterval.Ticks, lifespanRemaining.Ticks));
 
-                            await Renew(lockDuration).ConfigureAwait(false);
+                            await Renew(lockDuration, token).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
-                            _log.Error($"Error auto-renewing lock '{Name}' for holder '{Holder}'", ex);
+                            _logger.LogError(ex, "Error auto-renewing lock '{name}' for holder '{holder}'", Name, Holder);
                         }
                     }
                 }
@@ -159,36 +204,27 @@ namespace Couchbase.Extensions.Locks.Internal
 
             var key = LockDocument.GetKey(Name);
 
-            _bucket.RemoveAsync(key, _cas)
+            _collection.RemoveAsync(key, new RemoveOptions().Cas(_cas))
                 .ContinueWith(t =>
                 {
-                    if (t.IsFaulted)
+                    if (t.Exception!.InnerExceptions.OfType<DocumentNotFoundException>().Any())
                     {
-                        _log.Warn($"Error releasing lock '{Name}' for holder '{Holder}'", t.Exception);
+                        _logger.LogDebug("Did not release lock '{name}' for holder '{holder}' because it was already released.",
+                            Name,
+                            Holder);
                     }
-                    else if (t.Result != null)
+                    else if (t.Exception!.InnerExceptions.OfType<CasMismatchException>().Any())
                     {
-                        var result = t.Result;
-                        if (result.Status == ResponseStatus.KeyNotFound)
-                        {
-                            _log.Debug("Did not release lock '{0}' for holder '{1}' because it was already released.",
-                                Name,
-                                Holder);
-                        }
-                        else if (result.Status == ResponseStatus.DocumentMutationDetected)
-                        {
-                            _log.Debug(
-                                "Did not release lock '{0}' for holder '{1}' because it was already held by another.",
-                                Name,
-                                Holder);
-                        }
-                        else if (!result.Success)
-                        {
-                            _log.Warn("Error releasing lock '{0}' for holder '{1}': {2}", Name, Holder,
-                                result.Exception?.Message ?? result.Message);
-                        }
+                        _logger.LogDebug(
+                            "Did not release lock '{name}' for holder '{holder}' because it was already held by another.",
+                            Name,
+                            Holder);
                     }
-                });
+                    else
+                    {
+                        _logger.LogWarning(t.Exception, "Error releasing lock '{name}' for holder '{holder}'", Name, Holder);
+                    }
+                }, TaskContinuationOptions.OnlyOnFaulted);
         }
     }
 }
