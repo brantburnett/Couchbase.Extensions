@@ -1,23 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2026
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.DependencyInjection", "src\Couchbase.Extensions.DependencyInjection\Couchbase.Extensions.DependencyInjection.csproj", "{8CFC2946-514D-4606-83A3-809E19CF94A6}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.DependencyInjection.UnitTests", "tests\Couchbase.Extensions.DependencyInjection.UnitTests\Couchbase.Extensions.DependencyInjection.UnitTests.csproj", "{DD43EE36-EE8A-42E6-B837-AD5F32FE7F6F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.DependencyInjection.IntegrationTests", "tests\Couchbase.Extensions.DependencyInjection.IntegrationTests\Couchbase.Extensions.DependencyInjection.IntegrationTests.csproj", "{BACE8433-B111-44E7-A8BE-ECA7A48CAC6A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "tests\TestApp\TestApp.csproj", "{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.DnsDiscovery", "src\Couchbase.Extensions.DnsDiscovery\Couchbase.Extensions.DnsDiscovery.csproj", "{71A8FC7A-A848-4414-BFAE-86E8A08E59A0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.DnsDiscovery.UnitTests", "tests\Couchbase.Extensions.DnsDiscovery.UnitTests\Couchbase.Extensions.DnsDiscovery.UnitTests.csproj", "{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Caching", "src\Couchbase.Extensions.Caching\Couchbase.Extensions.Caching.csproj", "{700D3F0E-DD70-43CD-9B35-ED12042051D0}"
 EndProject
@@ -58,30 +48,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8CFC2946-514D-4606-83A3-809E19CF94A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8CFC2946-514D-4606-83A3-809E19CF94A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8CFC2946-514D-4606-83A3-809E19CF94A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8CFC2946-514D-4606-83A3-809E19CF94A6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DD43EE36-EE8A-42E6-B837-AD5F32FE7F6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DD43EE36-EE8A-42E6-B837-AD5F32FE7F6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DD43EE36-EE8A-42E6-B837-AD5F32FE7F6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DD43EE36-EE8A-42E6-B837-AD5F32FE7F6F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BACE8433-B111-44E7-A8BE-ECA7A48CAC6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BACE8433-B111-44E7-A8BE-ECA7A48CAC6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BACE8433-B111-44E7-A8BE-ECA7A48CAC6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BACE8433-B111-44E7-A8BE-ECA7A48CAC6A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{700D3F0E-DD70-43CD-9B35-ED12042051D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{700D3F0E-DD70-43CD-9B35-ED12042051D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{700D3F0E-DD70-43CD-9B35-ED12042051D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -131,12 +101,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{8CFC2946-514D-4606-83A3-809E19CF94A6} = {EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}
-		{DD43EE36-EE8A-42E6-B837-AD5F32FE7F6F} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
-		{BACE8433-B111-44E7-A8BE-ECA7A48CAC6A} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
 		{4C92B1B9-CE3E-458D-8CBA-359A473E1DBF} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
-		{71A8FC7A-A848-4414-BFAE-86E8A08E59A0} = {EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}
-		{B743B8D9-1F91-4160-BFED-BFD23EA79CE6} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}
 		{700D3F0E-DD70-43CD-9B35-ED12042051D0} = {EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}
 		{66C1DB94-69F2-4202-BB49-A112915FD932} = {EC47DFB9-AB39-41F8-BD7C-7B25BBCDEBD1}
 		{1F91B9B9-DF56-4F73-B593-B080272B620D} = {727F95F9-8FD9-423C-ACC6-B23E0D6CCC4C}

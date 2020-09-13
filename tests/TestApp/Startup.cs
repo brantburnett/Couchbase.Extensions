@@ -1,5 +1,4 @@
 ﻿using Couchbase.Extensions.DependencyInjection;
-using Couchbase.Extensions.DnsDiscovery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +31,6 @@ namespace TestApp
             // Register Couchbase with configuration section
             services
                 .AddCouchbase(Configuration.GetSection("Couchbase"))
-                .AddCouchbaseDnsDiscovery()
                 .AddCouchbaseBucket<ITravelSampleBucketProvider>("travel-sample");
 
             services.AddMvc();
