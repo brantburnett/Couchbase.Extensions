@@ -13,9 +13,9 @@ namespace Couchbase.Extensions.Locks
         public string Name { get; set; }
 
         /// <summary>
-        /// Requested lock holder.
+        /// Current holder of the lock, if known.
         /// </summary>
-        public string Holder { get; set; }
+        public string? Holder { get; set; }
 
         /// <summary>
         /// Creates a new CouchbaseLockUnavailableException.
@@ -24,6 +24,7 @@ namespace Couchbase.Extensions.Locks
         public CouchbaseLockUnavailableException(string name)
             : base($"Lock '{name}' is currently unavailable.")
         {
+            Name = name;
         }
     }
 }

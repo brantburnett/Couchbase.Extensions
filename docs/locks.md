@@ -4,7 +4,7 @@ A system for managing distributed mutexs backed by Couchbase. This can prevent m
 
 ## Getting Started
 
-Assuming you have an [installation of Couchbase Server](https://developer.couchbase.com/documentation/server/4.5/getting-started/installing.html) and Visual Studio  VSCODE forthcoming), do the following:
+Assuming you have an [installation of Couchbase Server](https://docs.couchbase.com/server/current/introduction/intro.html) and Visual Studio  VSCODE forthcoming), do the following:
 
 - Install the package from [NuGet](https://www.nuget.org/packages/Couchbase.Extensions.Locks/) or build from source and add a reference.
 
@@ -34,10 +34,11 @@ public class MyController : Controller
 
     public IActionResult Index()
     {
-        var bucket = _bucketProvider.GetBucket("default");
+        var bucket = await _bucketProvider.GetBucketAsync("default");
+        var collection = bucket.DefaultCollection();
 
         try {
-            using (var mutex = await bucket.RequestMutexAsync("my-lock-name", TimeSpan.FromSeconds(15)))
+            using (var mutex = await collection.RequestMutexAsync("my-lock-name", TimeSpan.FromSeconds(15)))
             {
                 // This lock will be held for the shorter of the using statement lifespan or 15 seconds
             }
@@ -70,10 +71,11 @@ public class MyController : Controller
 
     public IActionResult Index()
     {
-        var bucket = _bucketProvider.GetBucket("default");
+        var bucket = await _bucketProvider.GetBucketAsync("default");
+        var collection = bucket.DefaultCollection();
 
         try {
-            using (var mutex = await bucket.RequestMutexAsync("my-lock-name", TimeSpan.FromSeconds(15)))
+            using (var mutex = await collection.RequestMutexAsync("my-lock-name", TimeSpan.FromSeconds(15)))
             {
                 while (true)
                 {
@@ -118,10 +120,11 @@ public class MyController : Controller
 
     public IActionResult Index()
     {
-        var bucket = _bucketProvider.GetBucket("default");
+        var bucket = await _bucketProvider.GetBucketAsync("default");
+        var collection = bucket.DefaultCollection();
 
         try {
-            using (var mutex = await bucket.RequestMutexAsync("my-lock-name", TimeSpan.FromSeconds(10)))
+            using (var mutex = await collection.RequestMutexAsync("my-lock-name", TimeSpan.FromSeconds(10)))
             {
                 mutex.AutoRenew(TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(1));
 
@@ -168,13 +171,14 @@ public class MyController : Controller
 
     public IActionResult Index()
     {
-        var bucket = _bucketProvider.GetBucket("default");
+        var bucket = await _bucketProvider.GetBucketAsync("default");
+        var collection = bucket.DefaultCollection();
 
         try {
             // Wrapping the call in LockPolicy.ExecuteAsync applies the wait and retry logic
             // for any CouchbaseLockUnavailableException.  All other exceptions throw immediately.
             using (var mutex = await LockPolicy.ExecuteAsync(
-                () => bucket.RequestMutexAsync("my-lock-name", TimeSpan.FromSeconds(10))))
+                () => collection.RequestMutexAsync("my-lock-name", TimeSpan.FromSeconds(10))))
             {
                 // Do work here
             }

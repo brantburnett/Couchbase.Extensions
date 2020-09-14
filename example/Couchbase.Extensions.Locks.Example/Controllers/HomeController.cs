@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Couchbase.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +12,7 @@ namespace Couchbase.Extensions.Locks.Example.Controllers
     public class HomeController : Controller
     {
         // Retry up to 10 times with a 1 second wait
-        private static readonly Policy RetryPolicy =
+        private static readonly AsyncPolicy RetryPolicy =
             Policy.Handle<CouchbaseLockUnavailableException>()
                 .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(1));
 
@@ -34,7 +32,8 @@ namespace Couchbase.Extensions.Locks.Example.Controllers
 
         public async Task<IActionResult> RequestWithLock(int requester)
         {
-            var bucket = _bucketProvider.GetBucket("default");
+            var bucket = await _bucketProvider.GetBucketAsync("default");
+            var collection = bucket.DefaultCollection();
 
             _logger.LogInformation("Starting requester {requester}", requester);
 
@@ -45,7 +44,7 @@ namespace Couchbase.Extensions.Locks.Example.Controllers
                 // Retry policy will try 10 times to get the lock, and will wait 1 second between attempts
                 // Lock will be held for 2 seconds if not renewed
                 using (var mutex = await RetryPolicy.ExecuteAsync(() =>
-                    bucket.RequestMutexAsync("my_lock_name", TimeSpan.FromSeconds(2))))
+                    collection.RequestMutexAsync("my_lock_name", TimeSpan.FromSeconds(2))))
                 {
                     // Will renew the lock every second, up to a maximum of 15 seconds, so long as the process keeps running
                     mutex.AutoRenew(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(15));

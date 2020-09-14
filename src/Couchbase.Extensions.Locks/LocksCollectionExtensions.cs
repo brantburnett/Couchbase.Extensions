@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Couchbase.Core;
 using Couchbase.Extensions.Locks.Internal;
+using Couchbase.KeyValue;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Couchbase.Extensions.Locks
 {
-    public static class LocksBucketExtensions
+    public static class LocksCollectionExtensions
     {
         /// <summary>
         /// Request a distributed Couchbase Mutex that expires after <paramref name="expiration"/>.
@@ -15,18 +18,20 @@ namespace Couchbase.Extensions.Locks
         ///
         /// The <see cref="ICouchbaseMutex"/> should be disposed once the lock is no longer needed.
         /// </remarks>
-        /// <param name="bucket">Couchbase bucket.</param>
+        /// <param name="collection">Couchbase collection.</param>
         /// <param name="name">Name of the lock.</param>
         /// <param name="expiration">Time until mutex expires, if not renewed.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The <see cref="ICouchbaseMutex"/>.</returns>
         /// <exception cref="CouchbaseLockUnavailableException">Thrown if the lock could not be acquired.</exception>
-        /// <exception cref="CouchbaseResponseException">Thrown on general Couchbase communication errors.</exception>
+        /// <exception cref="CouchbaseException">Thrown on general Couchbase communication errors.</exception>
         /// <exception cref="ArgumentNullException">Thrown if bucket is null.</exception>
         /// <exception cref="ArgumentException">Thrown for invalid name.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown for non-positive expiration.</exception>
-        public static Task<ICouchbaseMutex> RequestMutexAsync(this IBucket bucket, string name, TimeSpan expiration)
+        public static Task<ICouchbaseMutex> RequestMutexAsync(this ICouchbaseCollection collection, string name, TimeSpan expiration,
+            CancellationToken cancellationToken = default)
         {
-            return bucket.RequestMutexAsync(name, LockHolder.Default, expiration);
+            return collection.RequestMutexAsync(name, LockHolder.Default, expiration, cancellationToken);
         }
 
         /// <summary>
@@ -35,21 +40,23 @@ namespace Couchbase.Extensions.Locks
         /// <remarks>
         /// The <see cref="ICouchbaseMutex"/> should be disposed once the lock is no longer needed.
         /// </remarks>
-        /// <param name="bucket">Couchbase bucket.</param>
+        /// <param name="collection">Couchbase collection.</param>
         /// <param name="name">Name of the lock.</param>
         /// <param name="holder">Useful identifier for who is holding the lock.</param>
         /// <param name="expiration">Time until mutex expires, if not renewed.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The <see cref="ICouchbaseMutex"/>.</returns>
         /// <exception cref="CouchbaseLockUnavailableException">Thrown if the lock could not be acquired.</exception>
-        /// <exception cref="CouchbaseResponseException">Thrown on general Couchbase communication errors.</exception>
+        /// <exception cref="CouchbaseException">Thrown on general Couchbase communication errors.</exception>
         /// <exception cref="ArgumentNullException">Thrown if bucket is null.</exception>
         /// <exception cref="ArgumentException">Thrown for invalid name or holder.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown for non-positive expiration.</exception>
-        public static async Task<ICouchbaseMutex> RequestMutexAsync(this IBucket bucket, string name, string holder, TimeSpan expiration)
+        public static async Task<ICouchbaseMutex> RequestMutexAsync(this ICouchbaseCollection collection, string name, string holder, TimeSpan expiration,
+            CancellationToken cancellationToken = default)
         {
-            if (bucket == null)
+            if (collection == null)
             {
-                throw new ArgumentNullException(nameof(bucket));
+                throw new ArgumentNullException(nameof(collection));
             }
             if (string.IsNullOrEmpty(name))
             {
@@ -64,10 +71,12 @@ namespace Couchbase.Extensions.Locks
                 throw new ArgumentOutOfRangeException(nameof(expiration), "Value must be positive.");
             }
 
-            var lockObj = new CouchbaseMutex(bucket, name, holder);
+            var logger = collection.Scope.Bucket.Cluster.ClusterServices.GetRequiredService<ILogger<CouchbaseMutex>>();
+
+            var lockObj = new CouchbaseMutex(collection, name, holder, logger);
 
             // This will throw if it fails to create the initial lock
-            await lockObj.Renew(expiration);
+            await lockObj.Renew(expiration, cancellationToken).ConfigureAwait(false);
 
             return lockObj;
         }
