@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Couchbase.Core;
+using Couchbase.KeyValue;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace Couchbase.Extensions.Caching
@@ -18,20 +18,9 @@ namespace Couchbase.Extensions.Caching
         /// <param name="key">The key for the cache item.</param>
         /// <param name="value">An array of bytes representing the item.</param>
         /// <param name="options">The <see cref="DistributedCacheEntryOptions"/> for the item; note that only sliding expiration is currently supported.</param>
-        public static void Set<T>(this IDistributedCache cache, string key, T value, DistributedCacheEntryOptions options)
-        {
-            if (key == null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            var bucket = GetBucket(cache);
-            var result = bucket.Upsert(key, value, GetLifetime(cache, options));
-        }
+        public static void Set<T>(this IDistributedCache cache, string key, T value,
+            DistributedCacheEntryOptions options) =>
+            cache.SetAsync<T>(key, value, options).GetAwaiter().GetResult();
 
         /// <summary>
         /// Sets a cache item using its key asynchronously. If the key exists, it will not be updated.
@@ -51,8 +40,9 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(value));
             }
 
-            var bucket = GetBucket(cache);
-            var result = await bucket.UpsertAsync(key, value, GetLifetime(cache, options)).ConfigureAwait(false);
+            var collection = await GetCollectionAsync(cache).ConfigureAwait(false);
+            await collection.UpsertAsync(key, value, new UpsertOptions().Expiry(GetLifetime(cache, options)))
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -61,12 +51,8 @@ namespace Couchbase.Extensions.Caching
         /// <param name="cache">The <see cref="CouchbaseCache"/> cache.</param>
         /// <param name="key">The key to lookup the item.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public static T Get<T>(this IDistributedCache cache, string key)
-        {
-            var bucket = GetBucket(cache);
-            var result = bucket.Get<T>(key);
-            return result.Value;
-        }
+        public static T Get<T>(this IDistributedCache cache, string key) =>
+            cache.GetAsync<T>(key).GetAwaiter().GetResult();
 
         /// <summary>
         /// Gets a cache item by its key, returning null if the item does not exist within the Cache.
@@ -75,18 +61,8 @@ namespace Couchbase.Extensions.Caching
         /// <param name="key">The key to lookup the item.</param>
         /// <param name="options">The <see cref="DistributedCacheEntryOptions"/> for the item; note that only sliding expiration is currently supported.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public static T Get<T>(this IDistributedCache cache, string key, DistributedCacheEntryOptions options)
-        {
-            if (key == null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-
-            var bucket = GetBucket(cache);
-            return options?.SlidingExpiration != null ?
-                bucket.GetAndTouch<T>(key, options.SlidingExpiration.Value).Value :
-                bucket.Get<T>(key).Value;
-        }
+        public static T Get<T>(this IDistributedCache cache, string key, DistributedCacheEntryOptions options) =>
+            cache.GetAsync<T>(key, options).GetAwaiter().GetResult();
 
         /// <summary>
         /// Gets a cache item by its key asynchronously, returning null if the item does not exist within the Cache.
@@ -139,12 +115,12 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var bucket = GetBucket(cache);
+            var collection = await GetCollectionAsync(cache).ConfigureAwait(false);
             if (options?.SlidingExpiration != null)
             {
-                return (await bucket.GetAndTouchAsync<T>(key, options.SlidingExpiration.Value).ConfigureAwait(false)).Value;
+                return (await collection.GetAndTouchAsync(key, options.SlidingExpiration.Value).ConfigureAwait(false)).ContentAs<T>();
             }
-            return (await bucket.GetAsync<T>(key).ConfigureAwait(false)).Value;
+            return (await collection.GetAsync(key).ConfigureAwait(false)).ContentAs<T>();
         }
 
         /// <summary>
@@ -176,13 +152,13 @@ namespace Couchbase.Extensions.Caching
         /// </summary>
         /// <param name="cache"></param>
         /// <returns></returns>
-        static IBucket GetBucket(IDistributedCache cache)
+        static ValueTask<ICouchbaseCollection> GetCollectionAsync(IDistributedCache cache)
         {
             if (!(cache is ICouchbaseCache couchbaseCache))
             {
                 throw new NotSupportedException("The IDistributedCache must be a CouchbaseCache.");
             }
-            return couchbaseCache.Bucket;
+            return couchbaseCache.CollectionProvider.GetCollectionAsync();
         }
 
         /// <summary>
@@ -191,7 +167,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="cache"></param>
         /// <param name="itemOptions"></param>
         /// <returns></returns>
-        public static TimeSpan GetLifetime(IDistributedCache cache, DistributedCacheEntryOptions itemOptions = null)
+        public static TimeSpan GetLifetime(IDistributedCache cache, DistributedCacheEntryOptions? itemOptions = null)
         {
             if (!(cache is ICouchbaseCache couchbaseCache))
             {

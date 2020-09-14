@@ -1,73 +1,66 @@
 # Couchbase Distributed Cache for ASP.NET Core #
-A custom ASP.NET Core Middleware plugin for a distributed cache using Couchbase server as the backing store. Supports both Memcached (in-memory) and Couchbase (persistent) buckets.
+
+A custom ASP.NET Core Middleware plugin for a distributed cache using Couchbase server as the backing store. Supports both Ephemeral (in-memory) and Couchbase (persistent) buckets.
 
 ## Getting Started ##
-Assuming you have an [installation of Couchbase Server](https://developer.couchbase.com/documentation/server/4.5/getting-started/installing.html) and Visual Studio (examples with VSCODE forthcoming), do the following:
 
-### Couchbase .NET Core Distributed Cache: ###
+Assuming you have an [installation of Couchbase Server](https://docs.couchbase.com/server/current/introduction/intro.html) and Visual Studio (examples with VSCODE forthcoming), do the following:
+
+### Couchbase .NET Core Distributed Cache ###
 
 - Create a .NET Core Web Application using Visual Studio or VsCodeor CIL
 - Install the package from [NuGet](https://www.nuget.org/packages/Couchbase.Extensions.Caching/) or build from source and add reference
 
 ### Setup ###
+
 In Setup.cs add the following to the ConfigureServices method:
 
-	public void ConfigureServices(IServiceCollection services)
-	{
-	    // Add framework services.
-	    services.AddMvc();
-	
-	     services.AddCouchbase(opt =>
-            {
-                opt.Servers = new List<Uri>
-                {
-                    new Uri("http://10.111.150.101:8091")
-                };
-            });
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    // Add framework services.
+    services.AddMvc();
 
-            services.AddDistributedCouchbaseCache("default", opt => { });
-	}
+    services.AddCouchbase(opt =>
+    {
+        opt.ConnectionString = "couchbase://localhost";
+        opt.Username = "Administrator";
+        opt.Password = "password";
+    });
 
-  You can change the `localhost` hostname to wherever you are hosting your Couchbase cluster. 
+    services.AddDistributedCouchbaseCache("default", opt => { });
+}
+```
+
+You can change the `localhost` hostname to wherever you are hosting your Couchbase cluster.
+
+### Using Caching in your Controllers ###
 
 In your controller add a parameter for `IDistributedCache` to the constructor:
 
-	 public class HomeController : Controller
-	 {
-		private IDistributedCache _cache;
-	
-	    public HomeController(IDistributedCache cache)
-	    {
-	    	_cache = cache;
-	    }
-	 }
+```csharp
+public class HomeController : Controller
+{
+    private IDistributedCache _cache;
 
-### Tear down ###
+    public HomeController(IDistributedCache cache)
+    {
+        _cache = cache;
+    }
 
-There are a couple different ways to free up the resources (TCP sockets, etc) opened by the Couchbase `ICluster` and `IBucket` used by the Distributed Session. Here is one simple way to tap into the `ApplicationStopped` cancellation token:
+    public async Task<IActionResult> Index()
+    {
+        await _cache.SetAsync("CacheTime", System.Text.Encoding.UTF8.GetBytes(DateTime.Now.ToString()));
+        return View();
+    }
 
-	public void ConfigureServices(IServiceCollection services)
-	{
-		...
+    public IActionResult About()
+    {
+        ViewData["Message"] = "Your application description page. "
+                    + System.Text.Encoding.UTF8.GetString(_cache.Get("CacheTime"));
+        return View();
+    }
+}
+```
 
-	 	applicationLifetime.ApplicationStopped.Register(() =>
-	    {
-	        app.ApplicationServices.GetRequiredService<ICouchbaseLifetimeService>().Close();
-	    });
-	}
-
-### Using Caching in your Controllers ###
- Add the following code to HomeController:
-
-   	public IActionResult Index()
-	{
-		_cache.Set("CacheTime", System.Text.Encoding.UTF8.GetBytes(DateTime.Now.ToString()));
-		return View();
-	}
-
-	public IActionResult About()
-	{
-		ViewData["Message"] = "Your application description page. "
-					+ System.Text.Encoding.UTF8.GetString(_cache.Get("CacheTime"));
-		return View();
-	}
+For performance reasons, we strongly recommend using the Async overloads and not the sychronous methods on IDistributeCache.

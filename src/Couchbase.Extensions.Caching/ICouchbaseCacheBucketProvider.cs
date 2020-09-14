@@ -1,6 +1,4 @@
-﻿
-using System;
-using Couchbase.Extensions.DependencyInjection;
+﻿using Couchbase.Extensions.DependencyInjection;
 
 namespace Couchbase.Extensions.Caching
 {

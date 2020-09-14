@@ -20,7 +20,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Set_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -30,7 +30,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public async Task SetAsync_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -40,7 +40,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Get_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -50,7 +50,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public async Task GetAsync_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -60,7 +60,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Get_Generic_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -70,7 +70,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public async Task GetAsynct_Generic_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -80,7 +80,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Test_GetLifeTime_AbsoluteExpiration()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -101,7 +101,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Test_GetLifeTime_AbsoluteExpirationRelativeToNow()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -122,7 +122,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Test_GetLifeTime_SlidingExpiration()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -139,7 +139,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Test_GetLifeTime_When_Options_Null_Default_SlidingExpiration_Used()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 

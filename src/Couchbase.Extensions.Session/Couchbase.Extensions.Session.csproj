@@ -19,11 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Couchbase.Extensions.Caching\Couchbase.Extensions.Caching.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CouchbaseNetClient" Version="2.6.0" />
+    <PackageReference Include="Couchbase.Extensions.Caching" Version="1.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.0" />
