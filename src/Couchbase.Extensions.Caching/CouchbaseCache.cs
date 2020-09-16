@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Couchbase.Core;
+using Couchbase.Core.IO.Transcoders;
+using Couchbase.KeyValue;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
@@ -12,8 +13,10 @@ namespace Couchbase.Extensions.Caching
     {
         internal static readonly TimeSpan InfiniteLifetime = TimeSpan.Zero;
 
+        private readonly ITypeTranscoder _transcoder = new LegacyTranscoder();
+
         /// <inheritdoc />
-        public IBucket Bucket { get; }
+        public ICouchbaseCacheCollectionProvider CollectionProvider { get; }
 
         /// <summary>
         /// Gets the options used by the Cache.
@@ -29,10 +32,10 @@ namespace Couchbase.Extensions.Caching
         /// </summary>
         /// <param name="provider"></param>
         /// <param name="options"></param>
-        public CouchbaseCache(ICouchbaseCacheBucketProvider provider, IOptions<CouchbaseCacheOptions> options)
+        public CouchbaseCache(ICouchbaseCacheCollectionProvider provider, IOptions<CouchbaseCacheOptions> options)
         {
             Options = options.Value;
-            Bucket = provider.GetBucket();
+            CollectionProvider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
         /// <summary>
@@ -40,15 +43,8 @@ namespace Couchbase.Extensions.Caching
         /// </summary>
         /// <param name="key">The key to lookup the item.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public byte[] Get(string key)
-        {
-            if (key == null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-            var result = Bucket.Get<byte[]>(key);
-            return result.Value;
-        }
+        public byte[] Get(string key) =>
+            GetAsync(key).GetAwaiter().GetResult();
 
         /// <summary>
         /// Gets a cache item by its key asynchronously, returning null if the item does not exist within the Cache.
@@ -64,8 +60,10 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var result = await Bucket.GetAsync<byte[]>(key).ConfigureAwait(false);
-            return result.Value;
+            var collection = await CollectionProvider.GetCollectionAsync().ConfigureAwait(false);
+            var result = await collection.GetAsync(key, new GetOptions().Transcoder(_transcoder))
+                .ConfigureAwait(false);
+            return result.ContentAs<byte[]>();
         }
 
         /// <summary>
@@ -82,7 +80,10 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            return (await Bucket.GetAsync<byte[]>(key).ConfigureAwait(false)).Value;
+            var collection = await CollectionProvider.GetCollectionAsync().ConfigureAwait(false);
+            var result = await collection.GetAsync(key, new GetOptions().Transcoder(_transcoder))
+                .ConfigureAwait(false);
+            return result.ContentAs<byte[]>();
         }
 
         /// <summary>
@@ -91,19 +92,8 @@ namespace Couchbase.Extensions.Caching
         /// <param name="key">The key for the cache item.</param>
         /// <param name="value">An array of bytes representing the item.</param>
         /// <param name="options">The <see cref="DistributedCacheEntryOptions"/> for the item; note that only sliding expiration is currently supported.</param>
-        public void Set(string key, byte[] value, DistributedCacheEntryOptions options = null)
-        {
-            if (key == null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            Bucket.Upsert(key, value, GetLifetime(options));
-        }
+        public void Set(string key, byte[] value, DistributedCacheEntryOptions? options = null) =>
+            SetAsync(key, value, options).GetAwaiter().GetResult();
 
         /// <summary>
         /// Sets a cache item using its key asynchronously. If the key exists, it will not be updated.
@@ -112,7 +102,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="value">An array of bytes representing the item.</param>
         /// <param name="options">The <see cref="DistributedCacheEntryOptions"/> for the item; note that only sliding expiration is currently supported.</param>
         /// <param name="token">The <see cref="CancellationToken"/> for the operation.</param>
-        public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options,
+        public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions? options,
             CancellationToken token = new CancellationToken())
         {
             token.ThrowIfCancellationRequested();
@@ -125,22 +115,17 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(value));
             }
 
-            await Bucket.UpsertAsync(key, value, GetLifetime(options)).ConfigureAwait(false);
+            var collection = await CollectionProvider.GetCollectionAsync().ConfigureAwait(false);
+            await collection.UpsertAsync(key, value, new UpsertOptions().Transcoder(_transcoder).Expiry(GetLifetime(options)))
+                .ConfigureAwait(false);
         }
 
         /// <summary>
         /// Refreshes or "touches" a key updating it's lifetime expiration.
         /// </summary>
         /// <param name="key">The key for the cache item.</param>
-        public void Refresh(string key)
-        {
-            if (key == null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-
-            Bucket.Touch(key, GetLifetime());
-        }
+        public void Refresh(string key) =>
+            RefreshAsync(key).GetAwaiter().GetResult();
 
         /// <summary>
         /// Refreshes or "touches" a key updating it's lifetime expiration asynchronously.
@@ -155,24 +140,19 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            await Bucket.TouchAsync(key, GetLifetime()).ConfigureAwait(false);
+            var collection = await CollectionProvider.GetCollectionAsync().ConfigureAwait(false);
+            await collection.TouchAsync(key, GetLifetime()).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Removes an item from the cache by it's key.
         /// </summary>
         /// <param name="key">The key for the cache item.</param>
-        public void Remove(string key)
-        {
-            if (key == null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
+        public void Remove(string key) =>
+            RemoveAsync(key).GetAwaiter().GetResult();
 
-            Bucket.Remove(key);
-        }
         /// <summary>
-        /// Removes an item from the cache by it's key asynchonously.
+        /// Removes an item from the cache by it's key asynchronously.
         /// </summary>
         /// <param name="key">The key for the cache item.</param>
         /// <param name="token">The <see cref="CancellationToken"/> for the operation.</param>
@@ -184,11 +164,12 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            await Bucket.RemoveAsync(key).ConfigureAwait(false);
+            var collection = await CollectionProvider.GetCollectionAsync().ConfigureAwait(false);
+            await collection.RemoveAsync(key).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
-        public TimeSpan GetLifetime(DistributedCacheEntryOptions options = null)
+        public TimeSpan GetLifetime(DistributedCacheEntryOptions? options = null)
         {
             return CouchbaseCacheExtensions.GetLifetime(this, options);
         }

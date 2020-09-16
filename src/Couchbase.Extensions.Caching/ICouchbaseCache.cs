@@ -1,5 +1,4 @@
 ﻿using System;
-using Couchbase.Core;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace Couchbase.Extensions.Caching
@@ -11,12 +10,12 @@ namespace Couchbase.Extensions.Caching
     public interface ICouchbaseCache : IDistributedCache
     {
         /// <summary>
-        /// Gets the Couchbase bucket as the backing store.
+        /// Provides the Couchbase collection as the backing store.
         /// </summary>
         /// <value>
         /// The bucket.
         /// </value>
-        IBucket Bucket { get; }
+        ICouchbaseCacheCollectionProvider CollectionProvider { get; }
 
         /// <summary>
         /// Gets the options used by the Cache.
@@ -34,6 +33,6 @@ namespace Couchbase.Extensions.Caching
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        TimeSpan GetLifetime(DistributedCacheEntryOptions options = null);
+        TimeSpan GetLifetime(DistributedCacheEntryOptions? options = null);
     }
 }

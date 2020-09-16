@@ -11,7 +11,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Set_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -21,7 +21,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public async Task SetAsync_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -31,7 +31,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Get_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -41,7 +41,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public async Task GetAsync_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -51,7 +51,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Refresh_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -61,7 +61,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public async Task RefreshAsync_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -71,7 +71,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Remove_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -81,7 +81,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public async Task RemoveAsync_WhenKeyIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -91,7 +91,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public void Set_WhenValueIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
@@ -101,7 +101,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
         [Fact]
         public async Task SetAsync_WhenValueIsNull_ThrowArgumentNullException()
         {
-            var provider = new Mock<ICouchbaseCacheBucketProvider>();
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
 
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 

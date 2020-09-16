@@ -1,6 +1,4 @@
 ﻿using System;
-using Couchbase.Configuration.Client;
-using Couchbase.Core;
 using Microsoft.Extensions.Options;
 
 namespace Couchbase.Extensions.Caching
@@ -9,7 +7,7 @@ namespace Couchbase.Extensions.Caching
     public class CouchbaseCacheOptions : IOptions<CouchbaseCacheOptions>
     {
         /// <summary>
-        /// Twenty minute default for sliding expiratons
+        /// Twenty minute default for sliding expiration
         /// </summary>
         public CouchbaseCacheOptions() => LifeSpan = new TimeSpan(0, 0, 20, 0);
 
