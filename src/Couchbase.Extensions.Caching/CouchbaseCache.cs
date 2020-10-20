@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Couchbase.Core.Exceptions.KeyValue;
 using Couchbase.Core.IO.Transcoders;
 using Couchbase.KeyValue;
 using Microsoft.Extensions.Caching.Distributed;
@@ -81,9 +82,17 @@ namespace Couchbase.Extensions.Caching
             }
 
             var collection = await CollectionProvider.GetCollectionAsync().ConfigureAwait(false);
-            var result = await collection.GetAsync(key, new GetOptions().Transcoder(_transcoder))
-                .ConfigureAwait(false);
-            return result.ContentAs<byte[]>();
+
+            try
+            {
+                var result = await collection.GetAsync(key, new GetOptions().Transcoder(_transcoder))
+                    .ConfigureAwait(false);
+                return result.ContentAs<byte[]>();
+            }
+            catch (DocumentNotFoundException)
+            {
+                return null;
+            }
         }
 
         /// <summary>
