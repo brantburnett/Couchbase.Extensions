@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Couchbase.Core.IO.Serializers;
 using Couchbase.Core.IO.Transcoders;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
@@ -72,7 +73,6 @@ namespace Couchbase.Extensions.Session
                 if (IsAvailable && _sessionIdBytes == null)
                 {
                     _sessionIdBytes = new byte[IdByteCount];
-
                     RandomNumberGenerator.Fill(_sessionIdBytes);
                 }
                 return _sessionIdBytes;

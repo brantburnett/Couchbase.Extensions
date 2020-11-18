@@ -92,7 +92,8 @@ namespace Couchbase.Extensions.Caching
 
             try
             {
-                var result = await collection.GetAsync(key, new GetOptions().Transcoder(_transcoder))
+                var result = await collection.GetAndTouchAsync(key, Options.LifeSpan.GetValueOrDefault(),
+                        new GetAndTouchOptions().Transcoder(_transcoder))
                     .ConfigureAwait(false);
                 return result.ContentAs<byte[]>();
             }

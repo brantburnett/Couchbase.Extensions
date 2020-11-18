@@ -17,11 +17,8 @@
     <RepositoryUrl>https://github.com/couchbaselabs/Couchbase.Extensions</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>aspnetcore;session;sessionstate;Couchbase;netcore;cache;session;caching;distributed;middleware;database;nosql;json</PackageTags>
-
 	<LangVersion>9</LangVersion>
   </PropertyGroup>
-
-
 	<ItemGroup>
 		<PackageReference Include="CouchbaseNetClient" Version="3.3.4" />
 		<PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.3.4" />
@@ -30,5 +27,4 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
 		<PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
 	</ItemGroup>
-
 </Project>
