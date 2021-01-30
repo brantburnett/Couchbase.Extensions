@@ -9,6 +9,7 @@ While not a officially supported Couchbase project, this repo is actively mainta
 ## Developer Guide ##
 
 - [Couchbase.Extensions.Caching](docs/caching.md): A distributed Cache [Middleware](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware) for [ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/) and [Couchbase](http://couchbase.com) server
+- [Couchbase.Extensions.MultiOp](docs/multi-op.md): Provides extensions for ICouchbaseCollection to perform multiple similar operations in parallel.
 - [Couchbase.Extensions.Session:](docs/session.md) A distributed Session [Middleware](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware) for [ASP.NET Cor](https://docs.microsoft.com/en-us/aspnet/core/)e and [Couchbase](http://couchbase.com) Server
 - [Couchbase.Extensions.Locks](docs/locks.md): A system for managing distributed mutexs backed by Couchbase.
 
