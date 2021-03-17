@@ -1,0 +1,7 @@
+﻿{
+  "couchbase": {
+    "connectionString": "couchbase://localhost",
+    "username": "Administrator",
+    "password": "password"
+  }
+}
