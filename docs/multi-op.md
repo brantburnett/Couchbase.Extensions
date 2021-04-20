@@ -30,9 +30,9 @@ var documents = new Dictionary<string, DocType>
     ["key-1"] = new DocType() { /* ... */ },
     ["key-2"] = new DocType() { /* ... */ },
     ["key-3"] = new DocType() { /* ... */ }
-}
+};
 
-var results = await bucket.Upsert(documents).ToList();
+var results = await collection.Upsert(documents).ToList();
 
 foreach (var result in results)
 {
