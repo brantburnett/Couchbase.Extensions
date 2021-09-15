@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net5.0;</TargetFrameworks>
     <AssemblyName>Couchbase.Extensions.Caching</AssemblyName>
     <PackageId>Couchbase.Extensions.Caching</PackageId>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -22,10 +22,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CouchbaseNetClient" Version="3.0.5" />
-    <PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.0.4.811" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.1" />
+    <PackageReference Include="CouchbaseNetClient" Version="3.2.1" />
+    <PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
   </ItemGroup>
 
