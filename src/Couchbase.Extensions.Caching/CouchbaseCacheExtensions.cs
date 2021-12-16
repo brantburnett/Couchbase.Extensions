@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Couchbase.Core.Exceptions.KeyValue;
 using Couchbase.KeyValue;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -51,7 +52,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="cache">The <see cref="CouchbaseCache"/> cache.</param>
         /// <param name="key">The key to lookup the item.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public static T Get<T>(this IDistributedCache cache, string key) =>
+        public static T? Get<T>(this IDistributedCache cache, string key) =>
             cache.GetAsync<T>(key).GetAwaiter().GetResult();
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="key">The key to lookup the item.</param>
         /// <param name="options">The <see cref="DistributedCacheEntryOptions"/> for the item; note that only sliding expiration is currently supported.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public static T Get<T>(this IDistributedCache cache, string key, DistributedCacheEntryOptions options) =>
+        public static T? Get<T>(this IDistributedCache cache, string key, DistributedCacheEntryOptions options) =>
             cache.GetAsync<T>(key, options).GetAwaiter().GetResult();
 
         /// <summary>
@@ -71,7 +72,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="key">The key to lookup the item.</param>
         /// <param name="token"></param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public static Task<T> GetAsync<T>(this IDistributedCache cache, string key, CancellationToken token)
+        public static Task<T?> GetAsync<T>(this IDistributedCache cache, string key, CancellationToken token)
         {
             return GetAsync<T>(cache, key, new DistributedCacheEntryOptions(), token);
         }
@@ -82,7 +83,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="cache">The <see cref="CouchbaseCache"/> cache.</param>
         /// <param name="key">The key to lookup the item.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public static Task<T> GetAsync<T>(this IDistributedCache cache, string key)
+        public static Task<T?> GetAsync<T>(this IDistributedCache cache, string key)
         {
             return GetAsync<T>(cache, key, new DistributedCacheEntryOptions(), new CancellationToken());
         }
@@ -94,7 +95,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="key">The key to lookup the item.</param>
         /// <param name="options">The <see cref="DistributedCacheEntryOptions"/> for the item; note that only sliding expiration is currently supported.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public static Task<T> GetAsync<T>(this IDistributedCache cache, string key, DistributedCacheEntryOptions options)
+        public static Task<T?> GetAsync<T>(this IDistributedCache cache, string key, DistributedCacheEntryOptions options)
         {
             return GetAsync<T>(cache, key, options, new CancellationToken());
         }
@@ -107,7 +108,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="options">The <see cref="DistributedCacheEntryOptions"/> for the item; note that only sliding expiration is currently supported.</param>
         /// <param name="token"></param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public static async Task<T> GetAsync<T>(this IDistributedCache cache, string key, DistributedCacheEntryOptions options, CancellationToken token)
+        public static async Task<T?> GetAsync<T>(this IDistributedCache cache, string key, DistributedCacheEntryOptions options, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
             if (key == null)
@@ -115,12 +116,21 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var collection = await GetCollectionAsync(cache).ConfigureAwait(false);
-            if (options?.SlidingExpiration != null)
+            try
             {
-                return (await collection.GetAndTouchAsync(key, options.SlidingExpiration.Value).ConfigureAwait(false)).ContentAs<T>();
+                var collection = await GetCollectionAsync(cache).ConfigureAwait(false);
+                if (options?.SlidingExpiration != null)
+                {
+                    return (await collection.GetAndTouchAsync(key, options.SlidingExpiration.Value)
+                        .ConfigureAwait(false)).ContentAs<T>();
+                }
+
+                return (await collection.GetAsync(key).ConfigureAwait(false)).ContentAs<T>();
             }
-            return (await collection.GetAsync(key).ConfigureAwait(false)).ContentAs<T>();
+            catch (DocumentNotFoundException)
+            {
+                return default;
+            }
         }
 
         /// <summary>
@@ -130,7 +140,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="key">The key to lookup the item.</param>
         /// <param name="options">The <see cref="DistributedCacheEntryOptions"/> for the item; note that only sliding expiration is currently supported.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public static byte[] Get(this IDistributedCache cache, string key, DistributedCacheEntryOptions options)
+        public static byte[]? Get(this IDistributedCache cache, string key, DistributedCacheEntryOptions options)
         {
             return Get<byte[]>(cache, key, options);
         }
@@ -142,7 +152,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="key">The key to lookup the item.</param>
         /// <param name="options">The <see cref="DistributedCacheEntryOptions"/> for the item; note that only sliding expiration is currently supported.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public static Task<byte[]> GetAsync(this IDistributedCache cache, string key, DistributedCacheEntryOptions options)
+        public static Task<byte[]?> GetAsync(this IDistributedCache cache, string key, DistributedCacheEntryOptions options)
         {
             return GetAsync<byte[]>(cache, key, options);
         }

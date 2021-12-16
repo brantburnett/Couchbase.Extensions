@@ -17,13 +17,13 @@
     <RepositoryUrl>https://github.com/couchbaselabs/Couchbase.Extensions</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
-    <LangVersion>8</LangVersion>
+    <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CouchbaseNetClient" Version="3.2.1" />
-    <PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.2.0" />
+    <PackageReference Include="CouchbaseNetClient" Version="3.2.5" />
+    <PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.2.5" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
