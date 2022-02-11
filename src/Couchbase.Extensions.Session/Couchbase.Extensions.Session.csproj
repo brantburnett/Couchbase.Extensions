@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+	 <TargetFrameworks>net6.0;</TargetFrameworks>
     <AssemblyName>Couchbase.Extensions.Session</AssemblyName>
     <PackageId>Couchbase.Extensions.Session</PackageId>
+    <IsAspNetCoreApp>true</IsAspNetCoreApp>
     <AssetTargetFallback>$(AssetTargetFallback);dnxcore50</AssetTargetFallback>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
@@ -11,22 +12,21 @@
     <Description>A custom ASP.NET Core Middleware plugin for distributed session state using Couchbase server as the backing store. Supports both Memcached (in-memory) and Couchbase (persistent) buckets.</Description>
     <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/couchbaselabs/Couchbase.Extensions</PackageProjectUrl>
-    <Copyright>Couchbase, Inc. 2018</Copyright>
+    <Copyright>Couchbase, Inc. 2020</Copyright>
     <PackageIconUrl>https://raw.githubusercontent.com/couchbaselabs/Linq2Couchbase/master/Packaging/couchbase-logo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/couchbaselabs/Couchbase.Extensions</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Couchbase;netcore;cache;session;caching;distributed;middleware;database;nosql;json</PackageTags>
+    <PackageTags>aspnetcore;session;sessionstate;Couchbase;netcore;cache;session;caching;distributed;middleware;database;nosql;json</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CouchbaseNetClient" Version="2.6.0" />
-    <PackageReference Include="Couchbase.Extensions.Caching" Version="1.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
-    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
-  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CouchbaseNetClient" Version="3.2.7" />
+		<PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.2.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+		<PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+	</ItemGroup>
 
 </Project>
