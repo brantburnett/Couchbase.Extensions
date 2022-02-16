@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Authors>Couchbase, Inc.</Authors>
-    <TargetFrameworks>net6.0;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net6.0;</TargetFrameworks>
     <AssemblyName>Couchbase.Extensions.Locks</AssemblyName>
     <PackageId>Couchbase.Extensions.Locks</PackageId>
     <PackageTags>Couchbase;netcore</PackageTags>

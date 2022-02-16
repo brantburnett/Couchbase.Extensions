@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	 <TargetFrameworks>net6.0;</TargetFrameworks>
+	<TargetFrameworks>netstandard2.1;net6.0;</TargetFrameworks>
     <AssemblyName>Couchbase.Extensions.Session</AssemblyName>
     <PackageId>Couchbase.Extensions.Session</PackageId>
     <IsAspNetCoreApp>true</IsAspNetCoreApp>
@@ -17,6 +17,8 @@
     <RepositoryUrl>https://github.com/couchbaselabs/Couchbase.Extensions</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>aspnetcore;session;sessionstate;Couchbase;netcore;cache;session;caching;distributed;middleware;database;nosql;json</PackageTags>
+
+	<LangVersion>9</LangVersion>
   </PropertyGroup>
 
 

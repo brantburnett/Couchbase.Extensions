@@ -46,10 +46,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.MultiO
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.MultiOp.IntegrationTests", "tests\Couchbase.Extensions.MultiOp.IntegrationTests\Couchbase.Extensions.MultiOp.IntegrationTests.csproj", "{4AF29051-106E-42BE-A8D1-152013BAD668}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Extensions.MultiOp.UnitTests", "tests\Couchbase.Extensions.MultiOp.UnitTests\Couchbase.Extensions.MultiOp.UnitTests.csproj", "{2DB91771-38EF-491F-9B89-2666801D013B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.MultiOp.UnitTests", "tests\Couchbase.Extensions.MultiOp.UnitTests\Couchbase.Extensions.MultiOp.UnitTests.csproj", "{2DB91771-38EF-491F-9B89-2666801D013B}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Compression.Snappier", "src\Couchbase.Extensions.Compression.Snappier\Couchbase.Extensions.Compression.Snappier.csproj", "{06FA9ED5-00FA-4969-A983-B73B3C5A91CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Extensions.Compression.Snappier.IntegrationTests", "tests\Couchbase.Extensions.Compression.Snappier.IntegrationTests\Couchbase.Extensions.Compression.Snappier.IntegrationTests.csproj", "{5AA07C99-EC7E-442D-A3EE-B8A373E0C278}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Compression.Snappier.IntegrationTests", "tests\Couchbase.Extensions.Compression.Snappier.IntegrationTests\Couchbase.Extensions.Compression.Snappier.IntegrationTests.csproj", "{5AA07C99-EC7E-442D-A3EE-B8A373E0C278}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

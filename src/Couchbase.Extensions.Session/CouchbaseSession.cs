@@ -72,6 +72,7 @@ namespace Couchbase.Extensions.Session
                 if (IsAvailable && _sessionIdBytes == null)
                 {
                     _sessionIdBytes = new byte[IdByteCount];
+
                     RandomNumberGenerator.Fill(_sessionIdBytes);
                 }
                 return _sessionIdBytes;
