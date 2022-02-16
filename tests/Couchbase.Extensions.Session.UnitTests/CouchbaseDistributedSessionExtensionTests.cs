@@ -11,14 +11,14 @@ namespace Couchbase.Extensions.Session.UnitTests
         public void When_Session_Is_Not_CouchbaseDistributedSession_SetObject_Throws_NotSupportedException()
         {
            var session = new Mock<ISession>();
-           Assert.Throws<NotSupportedException>(()=>session.Object.SetObject("key", "value"));
+           Assert.ThrowsAsync<NotSupportedException>(()=>session.Object.SetObject("key", "value"));
         }
 
         [Fact]
         public void When_Session_Is_Not_CouchbaseDistributedSession_GetObject_Throws_NotSupportedException()
         {
             var session = new Mock<ISession>();
-            Assert.Throws<NotSupportedException>(() => session.Object.GetObject<string>("key"));
+            Assert.ThrowsAsync<NotSupportedException>(() => session.Object.GetObject<string>("key"));
         }
     }
 }
