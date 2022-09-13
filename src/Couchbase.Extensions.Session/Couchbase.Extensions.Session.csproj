@@ -5,7 +5,6 @@
     <AssemblyName>Couchbase.Extensions.Session</AssemblyName>
     <PackageId>Couchbase.Extensions.Session</PackageId>
     <IsAspNetCoreApp>true</IsAspNetCoreApp>
-    <AssetTargetFallback>$(AssetTargetFallback);dnxcore50</AssetTargetFallback>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
@@ -17,18 +16,16 @@
     <RepositoryUrl>https://github.com/couchbaselabs/Couchbase.Extensions</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>aspnetcore;session;sessionstate;Couchbase;netcore;cache;session;caching;distributed;middleware;database;nosql;json</PackageTags>
-
 	<LangVersion>9</LangVersion>
   </PropertyGroup>
-
-
-	<ItemGroup>
-		<PackageReference Include="CouchbaseNetClient" Version="3.3.4" />
-		<PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.3.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-		<PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
-	</ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="CouchbaseNetClient" Version="3.3.4" />
+   <!-- <PackageReference Include="Couchbase.Extensions.Caching" Version="3.2.5" />-->
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+  </ItemGroup>
 </Project>
