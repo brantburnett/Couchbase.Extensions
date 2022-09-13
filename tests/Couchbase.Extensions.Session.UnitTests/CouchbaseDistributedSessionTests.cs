@@ -25,11 +25,7 @@ namespace Couchbase.Extensions.Session.UnitTests
             op.Setup(x => x.ContentAs<Dictionary<string, byte[]>>()).Returns(new Dictionary<string, byte[]>());
 
             var collection = new Mock<ICouchbaseCollection>();
-<<<<<<< HEAD
-            collection.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<GetOptions>()))
-=======
             collection.Setup(x => x.GetAndTouchAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<GetAndTouchOptions>()))
->>>>>>> 77e754d (Session changes for SDK3)
                 .Returns(Task.FromResult(op.Object));
 
             var bucket = new Mock<IBucket>();

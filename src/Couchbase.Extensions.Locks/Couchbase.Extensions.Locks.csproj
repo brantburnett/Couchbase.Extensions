@@ -23,8 +23,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CouchbaseNetClient" Version="3.2.7" />
-    <PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.2.7" />
+    <PackageReference Include="CouchbaseNetClient" Version="3.3.4" />
+    <PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.3.4" />
   </ItemGroup>
 
 </Project>

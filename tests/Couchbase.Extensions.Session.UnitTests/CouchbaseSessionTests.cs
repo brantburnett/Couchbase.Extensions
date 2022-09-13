@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-﻿
-=======
+
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
->>>>>>> 77e754d (Session changes for SDK3)
 using System;
 using System.Globalization;
 using System.Linq;
@@ -31,12 +28,7 @@ using NullLoggerFactory = Microsoft.Extensions.Logging.Abstractions.NullLoggerFa
 namespace Couchbase.Extensions.Session.UnitTests
 {
     /*
-<<<<<<< HEAD
-     * These tests are largely a fork and conversion of the tests in the Session repo so that the
-     * two implementations pass the same test scenarios.
-=======
      * These tests are largely a copy and conversion of the tests in Session repo
->>>>>>> 77e754d (Session changes for SDK3)
      * https://github.com/dotnet/aspnetcore/blob/main/src/Middleware/Session/test/SessionTests.cs
      */
     public class CouchbaseSessionTests

@@ -16,6 +16,9 @@ namespace Couchbase.Extensions.Session
 {
     public class CouchbaseSession :  ISession
     {
+#if NETSTANDARD2_0
+        internal static Random Random = new Random();
+#endif
         private const int IdByteCount = 16;
         private const int KeyLengthLimit = ushort.MaxValue;
 
@@ -73,7 +76,11 @@ namespace Couchbase.Extensions.Session
                 if (IsAvailable && _sessionIdBytes == null)
                 {
                     _sessionIdBytes = new byte[IdByteCount];
+#if NETSTANDARD2_0
+                    Random.NextBytes(_sessionIdBytes);
+#else
                     RandomNumberGenerator.Fill(_sessionIdBytes);
+ #endif
                 }
                 return _sessionIdBytes;
             }
