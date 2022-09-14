@@ -7,10 +7,10 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>3.2.5</Version>
+    <Version>3.3.4</Version>
     <Description>A custom ASP.NET Core Middleware plugin for distributed cache using Couchbase server as the backing store. Supports both Memcached (in-memory) and Couchbase (persistent) buckets.</Description>
     <PackageTags>Couchbase;netcore;cache;session;caching;distributed;middleware;database;nosql;json</PackageTags>
-    <Copyright>Couchbase, Inc. 2021</Copyright>
+    <Copyright>Couchbase, Inc. 2022</Copyright>
     <PackageProjectUrl>https://github.com/couchbaselabs/Couchbase.Extensions</PackageProjectUrl>
     <RepositoryUrl>https://github.com/couchbaselabs/Couchbase.Extensions</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -18,7 +18,7 @@
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <SignAssembly>true</SignAssembly>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageIcon>couchbase.png</PackageIcon>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
@@ -33,8 +33,9 @@
 
   <ItemGroup>
     <None Include="couchbase.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <Pack>True</Pack>
-      <PackagePath></PackagePath>
+      <PackagePath>/</PackagePath>
     </None>
   </ItemGroup>
 
