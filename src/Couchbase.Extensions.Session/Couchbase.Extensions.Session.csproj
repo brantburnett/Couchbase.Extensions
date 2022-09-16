@@ -38,4 +38,7 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Couchbase.Extensions.Caching\Couchbase.Extensions.Caching.csproj" />
+  </ItemGroup>
 </Project>

@@ -264,7 +264,7 @@ namespace Couchbase.Extensions.Session.UnitTests
         [Fact]
         public void Ctor_When_SessionKey_Is_Null_ArgumentException()
         {
-            var cache = new Mock<IDistributedCache>();
+            var cache = new Mock<ICouchbaseCache>();
             var loggerFactory = new Mock<ILoggerFactory>();
             Assert.Throws<ArgumentException>(() => new CouchbaseSession(cache.Object, null, new TimeSpan(0, 0, 10, 0), TimeSpan.Zero, () => true, loggerFactory.Object, true));
         }
@@ -272,7 +272,7 @@ namespace Couchbase.Extensions.Session.UnitTests
         [Fact]
         public void Ctor_When_TryEstablishSession_Is_Null_ArgumentNullException()
         {
-            var cache = new Mock<IDistributedCache>();
+            var cache = new Mock<ICouchbaseCache>();
             var loggerFactory = new Mock<ILoggerFactory>();
             Assert.Throws<ArgumentNullException>(() => new CouchbaseSession(cache.Object, "thekey", new TimeSpan(0, 0, 10, 0), TimeSpan.Zero, null, loggerFactory.Object, true));
         }
@@ -280,7 +280,7 @@ namespace Couchbase.Extensions.Session.UnitTests
         [Fact]
         public void Ctor_When_LoggerFactory_Is_Null_ArgumentNullException()
         {
-            var cache = new Mock<IDistributedCache>();
+            var cache = new Mock<ICouchbaseCache>();
 
             Assert.Throws<ArgumentNullException>(() => new CouchbaseSession(cache.Object, "thekey", new TimeSpan(0, 0, 10, 0), TimeSpan.Zero, () => true, null, true));
         }

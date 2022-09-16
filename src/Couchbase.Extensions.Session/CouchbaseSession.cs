@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core.IO.Serializers;
 using Couchbase.Core.IO.Transcoders;
+using Couchbase.Extensions.Caching;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ namespace Couchbase.Extensions.Session
         private const int IdByteCount = 16;
         private const int KeyLengthLimit = ushort.MaxValue;
 
-        private readonly IDistributedCache _cache;
+        private readonly ICouchbaseCache _cache;
         private readonly string _sessionKey;
         private readonly TimeSpan _idleTimeout;
         private readonly TimeSpan _ioTimeout;
@@ -36,7 +37,7 @@ namespace Couchbase.Extensions.Session
         private byte[] _sessionIdBytes;
         public ITypeTranscoder Transcoder { get; set; } = new LegacyTranscoder();
 
-        public CouchbaseSession(IDistributedCache cache, string sessionKey, TimeSpan idleTimeout, TimeSpan ioTimeout,
+        public CouchbaseSession(ICouchbaseCache cache, string sessionKey, TimeSpan idleTimeout, TimeSpan ioTimeout,
             Func<bool> tryEstablishSession, ILoggerFactory loggerFactory, bool isNewSessionKey)
         {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
