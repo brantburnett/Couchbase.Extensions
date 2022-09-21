@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Couchbase.Core.Transcoders;
+using Couchbase.Core.IO.Serializers;
+using Couchbase.Core.IO.Transcoders;
 using Couchbase.Extensions.Caching;
-using Couchbase.IO.Operations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
@@ -15,89 +15,156 @@ using Newtonsoft.Json;
 
 namespace Couchbase.Extensions.Session
 {
-    public class CouchbaseSession : ISession
+    public class CouchbaseSession :  ISession
     {
-        readonly DefaultTranscoder _transcoder = new DefaultTranscoder();
-        private static readonly RandomNumberGenerator CryptoRandom = RandomNumberGenerator.Create();
+#if NETSTANDARD2_0
+        internal static Random Random = new Random();
+#endif
         private const int IdByteCount = 16;
-        private readonly IDistributedCache _cache;
+        private const int KeyLengthLimit = ushort.MaxValue;
+
+        private readonly ICouchbaseCache _cache;
         private readonly string _sessionKey;
         private readonly TimeSpan _idleTimeout;
         private readonly TimeSpan _ioTimeout;
         private readonly Func<bool> _tryEstablishSession;
-        private readonly ILogger<CouchbaseSession> _logger;
-        private readonly bool _isNewSessionKey;
+        private readonly ILogger _logger;
         private bool _isModified;
         private bool _loaded;
         private bool _isAvailable;
+        private bool _isNewSessionKey;
         private string _sessionId;
         private byte[] _sessionIdBytes;
-        private Dictionary<string, byte[]> _store;
+        public ITypeTranscoder Transcoder { get; set; } = new LegacyTranscoder();
 
-        public CouchbaseSession(
-            IDistributedCache cache,
-            string sessionKey,
-            TimeSpan idleTimeout,
-            TimeSpan ioTimeout,
-            Func<bool> tryEstablishSession,
-            ILoggerFactory loggerFactory,
-            bool isNewSessionKey)
+        public CouchbaseSession(ICouchbaseCache cache, string sessionKey, TimeSpan idleTimeout, TimeSpan ioTimeout,
+            Func<bool> tryEstablishSession, ILoggerFactory loggerFactory, bool isNewSessionKey)
         {
-            if (string.IsNullOrEmpty(sessionKey))
-            {
-                throw new ArgumentException("Argument cannot be null or empty.", nameof(sessionKey));
-            }
-
-            if (loggerFactory == null)
-            {
-                throw new ArgumentNullException(nameof(loggerFactory));
-            }
-
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-            _sessionKey = sessionKey;
-            _idleTimeout = idleTimeout;
-            _ioTimeout = ioTimeout == TimeSpan.Zero ? TimeSpan.FromSeconds(10) : ioTimeout;
+            _sessionKey = string.IsNullOrEmpty(sessionKey) ? throw new ArgumentException(nameof(sessionKey)) : sessionKey;
             _tryEstablishSession = tryEstablishSession ?? throw new ArgumentNullException(nameof(tryEstablishSession));
-            _logger = loggerFactory.CreateLogger<CouchbaseSession>();
+            _logger = loggerFactory == null ? throw new ArgumentNullException(nameof(loggerFactory)) : loggerFactory.CreateLogger<CouchbaseSession>();
+            Store = new Dictionary<string, byte[]>();
+            _idleTimeout = idleTimeout;
+            _ioTimeout = ioTimeout;
             _isNewSessionKey = isNewSessionKey;
-            _store = new Dictionary<string, byte[]>();
+        }
+
+        /// <inheritdoc />
+        public bool IsAvailable
+        {
+            get
+            {
+                Load();
+                return _isAvailable;
+            }
+        }
+
+        /// <inheritdoc />
+        public string Id
+        {
+            get
+            {
+                Load();
+                return _sessionId ??= new Guid(IdBytes).ToString();
+            }
+        }
+
+        private byte[] IdBytes
+        {
+            get
+            {
+                if (IsAvailable && _sessionIdBytes == null)
+                {
+                    _sessionIdBytes = new byte[IdByteCount];
+#if NETSTANDARD2_0
+                    Random.NextBytes(_sessionIdBytes);
+#else
+                    RandomNumberGenerator.Fill(_sessionIdBytes);
+ #endif
+                }
+                return _sessionIdBytes;
+            }
+        }
+
+        /// <inheritdoc/>
+        public IEnumerable<string> Keys
+        {
+            get
+            {
+                Load();
+                return Store.Keys;
+            }
+        }
+
+        private IDictionary<string, byte[]> Store { get; set; }
+
+        /// <inheritdoc />
+        public bool TryGetValue(string key, out byte[] value)
+        {
+            Load();
+            return Store.TryGetValue(key, out value);
+        }
+
+        /// <inheritdoc />
+        public void Set(string key, byte[] value)
+        {
+            value = value ?? throw new ArgumentNullException(nameof(value));
+
+            if (IsAvailable)
+            {
+                if (key.Length > KeyLengthLimit)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(key), key.Length,
+                        $"The key cannot be longer than '{KeyLengthLimit}' when encoded with UTF-8.");
+                }
+
+                if (!_tryEstablishSession())
+                {
+                   throw new InvalidOperationException("The session cannot be established after the response has started.");
+                }
+                _isModified = true;
+                byte[] copy = new byte[value.Length];
+                Buffer.BlockCopy(src: value, srcOffset: 0, dst: copy, dstOffset: 0, count: value.Length);
+                Store[key] = copy;
+            }
+        }
+
+        /// <inheritdoc />
+        public void Remove(string key)
+        {
+            Load();
+            _isModified |= Store.Remove(key);
+        }
+
+        /// <inheritdoc />
+        public void Clear()
+        {
+            Load();
+            _isModified |= Store.Count > 0;
+            Store.Clear();
         }
 
         private void Load()
         {
-           LoadAsync().GetAwaiter().GetResult();
-        }
-
-        public async Task LoadAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
             if (!_loaded)
             {
                 try
                 {
-                    using (var timeout = new CancellationTokenSource(_ioTimeout))
+                    var data = _cache.Get(_sessionKey);
+                    if (data != null)
                     {
-                        var cts = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, cancellationToken);
-                        var data = await _cache.GetAsync<Dictionary<string, byte[]>>(_sessionKey, new DistributedCacheEntryOptions
-                        {
-                            SlidingExpiration = _idleTimeout
-                        }, cts.Token).
-                        ConfigureAwait(false);
-
-                        if (data != null)
-                        {
-                            _store = new Dictionary<string, byte[]>(data, StringComparer.OrdinalIgnoreCase);
-                        }
-                        else if (!_isNewSessionKey)
-                        {
-                            _logger.LogWarning(2, "Accessing expired session, Key:{0}", _sessionKey);
-                        }
+                        Deserialize(data);
+                    }
+                    else if (!_isNewSessionKey)
+                    {
+                        _logger.LogInformation("Accessing expired session, Key:{sessionKey}", _sessionKey);
                     }
                     _isAvailable = true;
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(6, exception, "Session cache read exception, Key:{0}", _sessionKey);
+                    _logger.LogError(exception, "Session cache read exception, Key:{sessionKey}", _sessionKey);
                     _isAvailable = false;
                     _sessionId = string.Empty;
                     _sessionIdBytes = null;
@@ -109,174 +176,146 @@ namespace Couchbase.Extensions.Session
             }
         }
 
-        public async Task CommitAsync(CancellationToken token)
+        /// <inheritdoc />
+        public async Task LoadAsync(CancellationToken cancellationToken = default)
         {
-            token.ThrowIfCancellationRequested();
-            if (_isModified)
+            // This will throw if called directly and a failure occurs. The user is expected to handle the failures.
+            if (!_loaded)
             {
-                if (_logger.IsEnabled(LogLevel.Information))
+                using (var timeout = new CancellationTokenSource(_ioTimeout))
                 {
+                    var cts = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, cancellationToken);
                     try
                     {
-                        using (var timeout = new CancellationTokenSource(_ioTimeout))
+                        cts.Token.ThrowIfCancellationRequested();
+                        var data = await _cache.GetAsync(_sessionKey, cts.Token);
+                        if (data != null)
                         {
-                            var cts = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, token);
-                            var data = await _cache.GetAsync<Dictionary<string, byte[]>>(_sessionKey, cts.Token).
-                                ConfigureAwait(false);
-
-                            if (data == null)
-                            {
-                                _logger.LogInformation(3, "Session started; Key:{sessionKey}, Id:{sessionId}",
-                                    _sessionKey, Id);
-                            }
+                            Deserialize(data);
+                        }
+                        else if (!_isNewSessionKey)
+                        {
+                            _logger.LogInformation("Accessing expired session, Key:{sessionKey}", _sessionKey);
                         }
                     }
-                    catch (Exception exception)
+                    catch (OperationCanceledException oex)
                     {
-                        _logger.LogError(6, "Session cache read exception, Key:{sessionKey}", _sessionKey, exception);
+                        if (timeout.Token.IsCancellationRequested)
+                        {
+                            _logger.LogWarning("Loading the session timed out.");
+                            throw new OperationCanceledException("Timed out loading the session.", oex, timeout.Token);
+                        }
+                        throw;
                     }
                 }
-
-                await _cache.SetAsync(
-                    _sessionKey,
-                    _store,
-                    new DistributedCacheEntryOptions().SetSlidingExpiration(_idleTimeout)).
-                    ConfigureAwait(false);
-
-                _isModified = false;
-                _logger.LogDebug(5, "Session stored; Key:{sessionKey}, Id:{sessionId}, Count:{count}",_sessionKey, Id, _store.Count);
-            }
-            else
-            {
-                await _cache.RefreshAsync(_sessionKey, token).ConfigureAwait(false);
+                _isAvailable = true;
+                _loaded = true;
             }
         }
 
         /// <inheritdoc />
-        public bool TryGetValue(string key, out byte[] value)
+        public async Task CommitAsync(CancellationToken cancellationToken = default)
         {
-            Load();
-            var success = _store.TryGetValue(key, out var item);
-            if (success)
+            if (!IsAvailable)
             {
-                value = item.GetType() == typeof(byte[]) ? item : ConvertToBytes(item);
+                _logger.LogInformation("Session cannot be committed since it is unavailable.");
+                return;
+            }
+
+            using var timeout = new CancellationTokenSource(_ioTimeout);
+            var cts = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, cancellationToken);
+            if (_isModified)
+            {
+                if (_logger.IsEnabled(LogLevel.Information))
+                {
+                    // This operation is only so we can log if the session already existed.
+                    // Log and ignore failures.
+                    try
+                    {
+                        cts.Token.ThrowIfCancellationRequested();
+                        var data = await _cache.GetAsync(_sessionKey, cts.Token);
+                        if (data == null)
+                        {
+                            _logger.LogInformation("Session started; Key: { sessionKey}, Id: { sessionId}", _sessionKey, Id);
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.LogError(exception, "Session cache read exception, Key:{sessionKey}", _sessionKey);
+                    }
+                }
+
+                var bytes = Serialize(Store);
+
+                try
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+                    await _cache.SetAsync(
+                        _sessionKey,
+                        bytes,
+                        new DistributedCacheEntryOptions().SetSlidingExpiration(_idleTimeout),
+                        cts.Token);
+                    _isModified = false;
+
+                    _logger.LogDebug("Session stored; Key:{sessionKey}, Id:{sessionId}, Count:{count}", _sessionKey, Id, Store.Count);
+                }
+                catch (OperationCanceledException oex)
+                {
+                    if (timeout.Token.IsCancellationRequested)
+                    {
+                        _logger.LogWarning("Committing the session timed out.");
+                        throw new OperationCanceledException("Timed out committing the session.", oex, timeout.Token);
+                    }
+                    throw;
+                }
             }
             else
             {
-                value = null;
-            }
-            return success;
-        }
-
-        internal byte[] ConvertToBytes(object value)
-        {
-            using (var ms = new MemoryStream())
-            {
-                using (var sw = new StreamWriter(ms))
+                try
                 {
-                    using (var jr = new JsonTextWriter(sw))
+                    await _cache.RefreshAsync(_sessionKey, cts.Token);
+                }
+                catch (OperationCanceledException oex)
+                {
+                    if (timeout.Token.IsCancellationRequested)
                     {
-                        var serializer = JsonSerializer.Create();
-                        serializer.Serialize(jr, value);
+                        _logger.LogWarning("Refreshing the session timed out.");
+                        throw new OperationCanceledException("Timed out refreshing the session.", oex, timeout.Token);
                     }
-                }
-                return ms.ToArray();
-            }
-        }
-
-        public bool TryGetValue<T>(string key, out T value)
-        {
-            Load();
-            value = default(T);
-            var success = _store.TryGetValue(key, out var item);
-            if (success)
-                value = _transcoder.Decode<T>(item, 0, item.Length, new Flags(), OperationCode.NoOp);
-            return success;
-        }
-
-        public void Set<T>(string key, T value)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-            if (IsAvailable)
-            {
-                if (!_tryEstablishSession())
-                {
-                    throw new InvalidOperationException("The session cannot be established after the response has started.");
+                    throw;
                 }
             }
-            _isModified = true;
-            _store[key] = ConvertToBytes(value);
         }
 
-        public void Set(string key, byte[] value)
+        private void Deserialize(byte[] bytes)
         {
-            if (IsAvailable)
+            var jsonStr = Encoding.UTF8.GetString(bytes);
+            if (!string.IsNullOrWhiteSpace(jsonStr))
             {
-                if (!_tryEstablishSession())
-                {
-                    throw new InvalidOperationException("The session cannot be established after the response has started.");
-                }
-            }
-            _isModified = true;
-            _store[key] = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        public void Remove(string key)
-        {
-            Load();
-            _isModified |= _store.Remove(key);
-        }
-
-        public void Clear()
-        {
-            Load();
-            _isModified |= _store.Count > 0;
-            _store.Clear();
-        }
-
-        public bool IsAvailable
-        {
-            get
-            {
-                Load();
-                return _isAvailable;
+                Store = JsonConvert.DeserializeObject<IDictionary<string, byte[]>>(jsonStr);
             }
         }
 
-        private byte[] IdBytes
+        internal byte[] Serialize(object value)
         {
-            get
+            //if already a byte array just return it
+            if (value.GetType() == typeof(byte[]))
             {
-                if (IsAvailable && _sessionIdBytes == null)
-                {
-                    _sessionIdBytes = new byte[IdByteCount];
-                    CryptoRandom.GetBytes(_sessionIdBytes);
-                }
-                return _sessionIdBytes;
+                return (byte[])value;
             }
-        }
 
-        public string Id
-        {
-            get
+            //if not convert it to a JSON byte array
+            using var ms = new MemoryStream();
+            using (var sw = new StreamWriter(ms))
             {
-                Load();
-                return _sessionId ?? (_sessionId = new Guid(IdBytes).ToString());
+                using var jr = new JsonTextWriter(sw);
+                var serializer = JsonSerializer.Create();
+                serializer.Serialize(jr, value);
             }
-        }
-
-        public IEnumerable Keys => ((ISession)this).Keys;
-
-        IEnumerable<string> ISession.Keys
-        {
-            get
-            {
-                Load();
-                return _store.Keys;
-            }
+            return ms.ToArray();
         }
     }
 }

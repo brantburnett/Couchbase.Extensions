@@ -44,7 +44,7 @@ namespace Couchbase.Extensions.Caching
         /// </summary>
         /// <param name="key">The key to lookup the item.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public byte[] Get(string key) =>
+        public byte[]? Get(string key) =>
             GetAsync(key).GetAwaiter().GetResult();
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="key">The key to lookup the item.</param>
         /// <param name="token">The <see cref="CancellationToken"/> for the operation.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        public async Task<byte[]> GetAsync(string key, CancellationToken token = new CancellationToken())
+        public async Task<byte[]?> GetAsync(string key, CancellationToken token = new CancellationToken())
         {
             token.ThrowIfCancellationRequested();
             if (key == null)
@@ -61,10 +61,17 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var collection = await CollectionProvider.GetCollectionAsync().ConfigureAwait(false);
-            var result = await collection.GetAsync(key, new GetOptions().Transcoder(_transcoder))
-                .ConfigureAwait(false);
-            return result.ContentAs<byte[]>();
+            try
+            {
+                var collection = await CollectionProvider.GetCollectionAsync().ConfigureAwait(false);
+                var result = await collection.GetAsync(key, new GetOptions().Transcoder(_transcoder))
+                    .ConfigureAwait(false);
+                return result.ContentAs<byte[]>();
+            }
+            catch (DocumentNotFoundException)
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -73,7 +80,7 @@ namespace Couchbase.Extensions.Caching
         /// <param name="key">The key to lookup the item.</param>
         /// <param name="token">The <see cref="CancellationToken"/> for the operation.</param>
         /// <returns>The cache item if found, otherwise null.</returns>
-        async Task<byte[]> IDistributedCache.GetAsync(string key, CancellationToken token)
+        async Task<byte[]?> IDistributedCache.GetAsync(string key, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
             if (key == null)
@@ -85,7 +92,8 @@ namespace Couchbase.Extensions.Caching
 
             try
             {
-                var result = await collection.GetAsync(key, new GetOptions().Transcoder(_transcoder))
+                var result = await collection.GetAndTouchAsync(key, Options.LifeSpan.GetValueOrDefault(),
+                        new GetAndTouchOptions().Transcoder(_transcoder))
                     .ConfigureAwait(false);
                 return result.ContentAs<byte[]>();
             }
@@ -173,8 +181,15 @@ namespace Couchbase.Extensions.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var collection = await CollectionProvider.GetCollectionAsync().ConfigureAwait(false);
-            await collection.RemoveAsync(key).ConfigureAwait(false);
+            try
+            {
+                var collection = await CollectionProvider.GetCollectionAsync().ConfigureAwait(false);
+                await collection.RemoveAsync(key).ConfigureAwait(false);
+            }
+            catch (DocumentNotFoundException)
+            {
+                // Ignore
+            }
         }
 
         /// <inheritdoc />

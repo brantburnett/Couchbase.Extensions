@@ -115,7 +115,7 @@ namespace Couchbase.Extensions.Caching.UnitTests
             {
                 AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow
             });
-            
+
             Assert.Equal(absoluteExpirationRelativeToNow.Ticks, (long)Math.Round((double)result.Ticks/1000000000)*1000000000);
         }
 

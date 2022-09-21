@@ -126,6 +126,18 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
         }
 
         [Fact]
+        public async Task Test_GetAsync_Missing()
+        {
+            var cache = GetCache();
+
+            const string key = "CouchbaseCacheTests.Test_GetAsync_Missing";
+
+            var bytes = await cache.GetAsync(key);
+
+            Assert.Null(bytes);
+        }
+
+        [Fact]
         public async Task Test_Remove()
         {
             var cache = GetCache();
@@ -173,6 +185,16 @@ namespace Couchbase.Extensions.Caching.IntegrationTests
             await cache.RemoveAsync(key);
 
             await Assert.ThrowsAsync<DocumentNotFoundException>(() => collection.GetAsync(key));
+        }
+
+        [Fact]
+        public async Task Test_RemoveAsync_Missing()
+        {
+            var cache = GetCache();
+
+            const string key = "CouchbaseCacheTests.Test_RemoveAsync_Missing";
+
+            await cache.RemoveAsync(key);
         }
 
         [Fact]

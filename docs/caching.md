@@ -24,7 +24,7 @@ public void ConfigureServices(IServiceCollection services)
     services.AddCouchbase(opt =>
     {
         opt.ConnectionString = "couchbase://localhost";
-        opt.Username = "Administrator";
+        opt.UserName = "Administrator";
         opt.Password = "password";
     });
 

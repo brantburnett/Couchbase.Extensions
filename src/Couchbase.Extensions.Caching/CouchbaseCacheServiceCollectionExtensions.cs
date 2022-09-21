@@ -33,7 +33,7 @@ namespace Couchbase.Extensions.Caching
 
             var descriptor = services.FirstOrDefault(x => x.ServiceType == typeof(IDistributedCache));
             if (descriptor != null) services.Remove(descriptor);
-            services.TryAddSingleton<IDistributedCache, CouchbaseCache>();
+            services.TryAddSingleton<ICouchbaseCache, CouchbaseCache>();
 
             return services;
         }
@@ -62,9 +62,13 @@ namespace Couchbase.Extensions.Caching
             services.AddOptions();
             services.Configure(setupAction);
 
-            var descriptor = services.FirstOrDefault(x => x.ServiceType == typeof(IDistributedCache));
-            if (descriptor != null) services.Remove(descriptor);
+            var distCacheDescriptor = services.FirstOrDefault(x => x.ServiceType == typeof(IDistributedCache));
+            if (distCacheDescriptor != null) services.Remove(distCacheDescriptor);
             services.TryAddSingleton<IDistributedCache, CouchbaseCache>();
+
+            var couchbaseCachedescriptor = services.FirstOrDefault(x => x.ServiceType == typeof(ICouchbaseCache));
+            if (couchbaseCachedescriptor != null) services.Remove(couchbaseCachedescriptor);
+            services.TryAddSingleton<ICouchbaseCache, CouchbaseCache>();
 
             return services;
         }

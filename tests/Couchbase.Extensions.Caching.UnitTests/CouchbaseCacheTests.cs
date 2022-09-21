@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Couchbase.Core;
+using Couchbase.Core.Exceptions.KeyValue;
+using Couchbase.KeyValue;
 using Moq;
 using Xunit;
 
@@ -49,6 +51,24 @@ namespace Couchbase.Extensions.Caching.UnitTests
         }
 
         [Fact]
+        public async Task GetAsync_DocumentNotFound_ReturnsNull()
+        {
+            var collection = new Mock<ICouchbaseCollection>();
+            collection
+                .Setup(m => m.GetAsync(It.IsAny<string>(), It.IsAny<GetOptions>()))
+                .ThrowsAsync(new DocumentNotFoundException());
+
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
+            provider
+                .Setup(m => m.GetCollectionAsync())
+                .ReturnsAsync(collection.Object);
+
+            var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
+
+            await cache.GetAsync("key");
+        }
+
+        [Fact]
         public void Refresh_WhenKeyIsNull_ThrowArgumentNullException()
         {
             var provider = new Mock<ICouchbaseCacheCollectionProvider>();
@@ -86,6 +106,24 @@ namespace Couchbase.Extensions.Caching.UnitTests
             var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
 
             await Assert.ThrowsAsync< ArgumentNullException>(async () => await cache.RemoveAsync(null));
+        }
+
+        [Fact]
+        public async Task RemoveAsync_DocumentNotFound_ReturnsNull()
+        {
+            var collection = new Mock<ICouchbaseCollection>();
+            collection
+                .Setup(m => m.RemoveAsync(It.IsAny<string>(), It.IsAny<RemoveOptions>()))
+                .ThrowsAsync(new DocumentNotFoundException());
+
+            var provider = new Mock<ICouchbaseCacheCollectionProvider>();
+            provider
+                .Setup(m => m.GetCollectionAsync())
+                .ReturnsAsync(collection.Object);
+
+            var cache = new CouchbaseCache(provider.Object, new CouchbaseCacheOptions());
+
+            await cache.RemoveAsync("key");
         }
 
         [Fact]
