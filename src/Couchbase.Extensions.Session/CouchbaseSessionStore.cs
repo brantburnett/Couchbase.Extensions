@@ -1,4 +1,5 @@
 ﻿using System;
+using Couchbase.Extensions.Caching;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Caching.Distributed;
@@ -12,7 +13,7 @@ namespace Couchbase.Extensions.Session
     /// <seealso cref="Microsoft.AspNetCore.Session.ISessionStore" />
     public class CouchbaseSessionStore : ISessionStore
     {
-        private readonly IDistributedCache _cache;
+        private readonly ICouchbaseCache _cache;
         private readonly ILoggerFactory _loggerFactory;
 
         /// <summary>
@@ -22,7 +23,7 @@ namespace Couchbase.Extensions.Session
         /// <param name="loggerFactory">The logger factory.</param>
         /// <exception cref="System.ArgumentNullException">
         /// </exception>
-        public CouchbaseSessionStore(IDistributedCache cache, ILoggerFactory loggerFactory)
+        public CouchbaseSessionStore(ICouchbaseCache cache, ILoggerFactory loggerFactory)
         {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));

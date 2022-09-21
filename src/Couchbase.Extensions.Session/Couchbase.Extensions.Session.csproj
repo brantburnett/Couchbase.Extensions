@@ -17,14 +17,15 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>aspnetcore;session;sessionstate;Couchbase;netcore;cache;session;caching;distributed;middleware;database;nosql;json</PackageTags>
 	<LangVersion>9</LangVersion>
-	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 	<PackageIcon>couchbase.png</PackageIcon>
 	<GenerateDocumentationFile>False</GenerateDocumentationFile>
-	<SignAssembly>True</SignAssembly>
-	<Version>3.3.4</Version>
+	<SignAssembly>False</SignAssembly>
+	<Version>3.3.5</Version>
+	<AssemblyOriginatorKeyFile>C:\keys\Couchbase.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CouchbaseNetClient" Version="3.3.4" />
+    <PackageReference Include="CouchbaseNetClient" Version="3.3.5" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
@@ -37,5 +38,8 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Couchbase.Extensions.Caching\Couchbase.Extensions.Caching.csproj" />
   </ItemGroup>
 </Project>

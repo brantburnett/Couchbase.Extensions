@@ -54,7 +54,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Compre
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Session.Example", "..\temp\Couchbase.Extensions\example\Couchbase.Extensions.Session.Example\Couchbase.Extensions.Session.Example.csproj", "{2002815D-BB04-4EE7-A671-D2A8A4E0A498}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Extensions.Caching.Example", "example\Couchbase.Extensions.Caching.Example\Couchbase.Extensions.Caching.Example.csproj", "{02FC8C26-DD40-4944-B897-B30598F8BC58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Extensions.Caching.Example", "example\Couchbase.Extensions.Caching.Example\Couchbase.Extensions.Caching.Example.csproj", "{02FC8C26-DD40-4944-B897-B30598F8BC58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
