@@ -7,7 +7,7 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>3.3.4</Version>
+    <Version>3.3.5</Version>
     <Description>A custom ASP.NET Core Middleware plugin for distributed cache using Couchbase server as the backing store. Supports both Memcached (in-memory) and Couchbase (persistent) buckets.</Description>
     <PackageTags>Couchbase;netcore;cache;session;caching;distributed;middleware;database;nosql;json</PackageTags>
     <Copyright>Couchbase, Inc. 2022</Copyright>
@@ -17,15 +17,16 @@
 
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>False</SignAssembly>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageIcon>couchbase.png</PackageIcon>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <AssemblyOriginatorKeyFile>C:\keys\Couchbase.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CouchbaseNetClient" Version="3.3.4" />
-    <PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.3.4" />
+    <PackageReference Include="CouchbaseNetClient" Version="3.3.5" />
+    <PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="3.3.5" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />

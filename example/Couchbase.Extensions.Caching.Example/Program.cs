@@ -1,3 +1,4 @@
+using Couchbase.Extensions.Caching;
 using Couchbase.Extensions.DependencyInjection;
 
 namespace Couchbase.Extensions.Caching.Example
