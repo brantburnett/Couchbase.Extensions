@@ -23,12 +23,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CouchbaseNetClient" Version="3.3.4" />
+    <PackageReference Include="CouchbaseNetClient" Version="3.4.8" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Snappier" Version="1.0.0" />
+    <PackageReference Include="Snappier" Version="1.1.1" />
   </ItemGroup>
 
 </Project>
